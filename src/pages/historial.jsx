@@ -99,17 +99,35 @@ export default function Historial() {
     };
 
     const enviarBoleta = async () => {
-      const texto = "Prueba";
-
+      const texto = `
+    BOLETA
+        
+    Cliente: ${detalle.venta.cliente}
+    Vendedor: ${detalle.venta.usuario}
+    Fecha: ${new Date(detalle.venta.fecha).toLocaleString()}
+        
+    TOTAL: $${detalle.venta.total}
+    `;
+        
       try {
-        await navigator.share({
-          title: "Boleta",
-          text: texto
-        });
-    
+        if (navigator.share) {
+          await navigator.share({
+            title: "Boleta",
+            text: texto
+          });
+        } else {
+          await navigator.clipboard.writeText(texto);
+          alert("Boleta copiada al portapapeles");
+        }
       } catch (err) {
-        alert(err.message);
         console.error(err);
+      
+        try {
+          await navigator.clipboard.writeText(texto);
+          alert("Boleta copiada al portapapeles");
+        } catch {
+          alert("No se pudo compartir la boleta");
+        }
       }
     };
 
