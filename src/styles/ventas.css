@@ -1,41 +1,20 @@
 body {
-  background: #f5f5f5;
-  font-family: Arial;
+  background-color: #f5f5f5;
+  font-family: Arial, sans-serif;
 }
 
 .container {
   padding: 20px;
 }
 
-h1 {
+h1, h2 {
   color: #2e7d32;
 }
-
-/* ===== LISTA PRODUCTOS ===== */
-
-.header-lista,
-.fila-producto {
-  display: grid;
-  grid-template-columns: 2fr 80px 1fr 80px;
-  gap: 10px;
-  align-items: center;
-}
-
-.header-lista {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.fila-producto {
-  background: white;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-/* STOCK */
+/* Stock con label */
 .stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
@@ -46,89 +25,409 @@ h1 {
 
 .stock-valor {
   font-weight: bold;
+  font-size: 15px;
 }
 
-/* PRECIOS */
+/* Precios más grandes y en negrita */
 .precios {
   display: flex;
   flex-direction: column;
+  gap: 3px;
+  font-size: 15px;
   font-weight: bold;
   color: #1b5e20;
 }
 
-/* BOTÓN ACCIÓN */
-.acciones-lista button {
+/* Columnas actualizadas */
+.header-lista {
+  display: grid;
+  grid-template-columns: 2fr 80px 1fr 80px;
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.fila-producto {
+  display: grid;
+  grid-template-columns: 2fr 80px 1fr 80px;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  gap: 10px;
+}
+
+.productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.card button {
   background: #2e7d32;
   color: white;
   border: none;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-/* ===== CARRITO ===== */
+.card button:hover {
+  background: #1b5e20;
+}
 
 .carrito {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .item {
   display: flex;
-  justify-content: space-between;
-  background: white;
-  padding: 10px;
+  gap: 10px;
   margin-bottom: 10px;
-  border-radius: 10px;
-}
-
-.item input {
-  width: 60px;
-}
-
-.total {
-  font-size: 22px;
-  font-weight: bold;
-  color: #2e7d32;
-  margin-top: 15px;
 }
 
 .btn-vender {
-  width: 100%;
-  padding: 12px;
+  margin-top: 20px;
   background: #121212;
   color: white;
+  padding: 10px 20px;
   border: none;
-  border-radius: 10px;
-  margin-top: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.item button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-vender:hover {
+  background: #2e7d32;
+}
+.total {
+  margin-top: 20px;
+  color: #2e7d32;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-/* ===== BOTÓN FLOTANTE ===== */
-
-.btn-flotante {
+/* SOLO MODAL - no afecta lo demás */
+.modal {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  inset: 0; /* equivalente a top, left, width, height */
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 320px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ventas-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.col-productos {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.col-carrito {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.cliente-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.cliente-box select {
+  flex: 1;
+  padding: 8px;
+}
+
+.card-seccion {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+/* Inputs bonitos */
+.input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #2e7d32;
+}
+
+/* Botón secundario */
+.btn-secundario {
+  background: #2e7d32;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-secundario:hover {
+  background: #dddddd;
+}
+
+/* Métodos de pago */
+.metodos {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.metodo {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.metodo:hover {
+  background: #f0f0f0;
+}
+
+.metodo.activo {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+.top-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.input-buscador {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+
+
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nombre {
+  font-weight: bold;
+}
+
+.codigo {
+  font-size: 13px;
+  color: #666;
+}
+
+
+
+.acciones-lista button {
   background: #2e7d32;
   color: white;
   border: none;
-  padding: 14px 18px;
-  border-radius: 50px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
 }
 
-/* ===== RESPONSIVE ===== */
+.acciones-lista button:hover {
+  background: #1b5e20;
+}
 
+/* RESPONSIVE CELULAR */
 @media (max-width: 768px) {
+
+  .ventas-layout {
+    grid-template-columns: 1fr;
+  }
+
   .header-lista {
     display: none;
   }
 
   .fila-producto {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .precios {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .acciones-lista button {
+    width: 100%;
   }
 
   .item {
     flex-direction: column;
-    gap: 8px;
+    align-items: stretch;
   }
+
+  .cliente-box {
+    flex-direction: column;
+  }
+
+  .metodos {
+    flex-direction: column;
+  }
+
+  .btn-vender {
+    width: 100%;
+  }
+}
+/* BOTÓN FLOTANTE */
+.btn-flotante {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+
+.btn-flotante:hover {
+  background: #1b5e20;
+}
+
+/* CARRITO PASO 2 */
+.carrito-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-volver {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.carrito-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.item-carrito {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  gap: 10px;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.item-nombre {
+  font-weight: bold;
+}
+
+.item-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-controles input {
+  width: 60px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.btn-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.total-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.total-monto {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2e7d32;
 }
