@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/historial.css";
-import * as html2pdf from "html2pdf.js";
+import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min.js";
 
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
