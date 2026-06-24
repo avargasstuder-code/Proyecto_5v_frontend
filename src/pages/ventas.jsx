@@ -32,10 +32,6 @@ function Ventas({ setIsAuth }) {
     cargarDatos();
   }, []);
 
-  useEffect(() => {
-    console.log("Carrito actualizado:", carrito);
-  }, [carrito]);
-
   const cargarDatos = async () => {
     try {
       const [productosRes, clientesRes, ciudadesRes, categoriasRes, diasRes] =
@@ -102,10 +98,23 @@ function Ventas({ setIsAuth }) {
 
   const agregarProducto = (producto) => {
     console.log("ANTES:", carrito.length);
-
+    
     setCarrito(prev => {
-      const nuevo = [...prev];
-      nuevo.push(item);
+      const nuevo = [
+        ...prev,
+        {
+          producto_id: producto.id,
+          nombre: producto.nombre,
+          tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
+          cantidad: 1,
+          precio_carton: producto.precio_carton,
+          precio_medio: producto.precio_medio,
+          precio_unitario: producto.precio_unitario,
+          tipo_venta: producto.tipo_venta
+        }
+      ];
+    
+      console.log("DESPUÉS:", nuevo.length);
       return nuevo;
     });
   };
@@ -218,7 +227,7 @@ function Ventas({ setIsAuth }) {
         <div className="carrito-lista">
           {carrito.length === 0 && <p>No hay productos en el carrito.</p>}
           {carrito.map((item, i) => (
-            <div key={item.producto_id + "-" + i} className="item-carrito">
+            <div key={i} className="item-carrito">
               <div className="item-info">
                 <span className="item-nombre">{item.nombre}</span>
                 {item.tipo_venta !== "unitario" && (
@@ -314,7 +323,7 @@ function Ventas({ setIsAuth }) {
           <option value="">Todas las categorías</option>
           {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
         </select>
-        <input type="text" placeholder="Buscar producto..." className="input-buscador"
+        <input type="text" placeholder="🔍 Buscar producto..." className="input-buscador"
           value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
       </div>
 
