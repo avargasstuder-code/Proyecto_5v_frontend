@@ -106,8 +106,7 @@ export default function Historial() {
           title: "Boleta",
           text: texto
         });
-      
-        alert("Compartido");
+    
       } catch (err) {
         alert(err.message);
         console.error(err);
