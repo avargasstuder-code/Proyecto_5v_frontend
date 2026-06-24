@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/historial.css";
+import * as html2pdf from "html2pdf.js";
 
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
   const [detalle, setDetalle] = useState(null);
   const [mostrarBoleta, setMostrarBoleta] = useState(false);
+  
 
   useEffect(() => {
     api.get("/historial")
@@ -18,6 +20,7 @@ export default function Historial() {
       )
       .catch(console.error);
   }, []);
+  
 
   const verDetalle = async (id) => {
     try {
@@ -98,38 +101,24 @@ export default function Historial() {
       ventana.document.close();
     };
 
-    const enviarBoleta = async () => {
-      const texto = `
-    BOLETA
-        
-    Cliente: ${detalle.venta.cliente}
-    Vendedor: ${detalle.venta.usuario}
-    Fecha: ${new Date(detalle.venta.fecha).toLocaleString()}
-        
-    TOTAL: $${detalle.venta.total}
-    `;
-        
-      try {
-        if (navigator.share) {
-          await navigator.share({
-            title: "Boleta",
-            text: texto
-          });
-        } else {
-          await navigator.clipboard.writeText(texto);
-          alert("Boleta copiada al portapapeles");
-        }
-      } catch (err) {
-        console.error(err);
-      
-        try {
-          await navigator.clipboard.writeText(texto);
-          alert("Boleta copiada al portapapeles");
-        } catch {
-          alert("No se pudo compartir la boleta");
-        }
-      }
+
+  const descargarBoleta = () => {
+    const element = document.querySelector(".boleta");
+
+    if (!element) {
+      alert("No se encontró la boleta");
+      return;
+    }
+
+    const opt = {
+      margin: 0.5,
+      filename: `boleta-${detalle?.venta?.id || "sin-id"}.pdf`,
+      html2canvas: { scale: 2 },
+      jsPDF: { format: "a4" }
     };
+
+    html2pdf().set(opt).from(element).save();
+  };
 
   return (
     <div className="container">
@@ -202,12 +191,12 @@ export default function Historial() {
                   <button className="btn-cerrar" onClick={() => setMostrarBoleta(false)}>
                     Cerrar
                   </button>
-                  <button className="btn-imprimir" onClick={enviarBoleta}>
-                    Enviar
+                  <button className="btn-imprimir" onClick={descargarBoleta}>
+                    Descargar PDF
                   </button>
                 </div>
             </div>
           </div>
         )}
     </div>
-  )};
+  )}
