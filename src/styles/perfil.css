@@ -1,0 +1,84 @@
+.perfil-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.card-perfil {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-perfil input,
+.card-perfil select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.card-perfil button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.card-perfil button:hover {
+  background: #1b5e20;
+}
+
+.usuarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.usuario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+
+.usuario-item p {
+  margin: 4px 0;
+}
+
+.btn-desactivar {
+  background: #d32f2f !important;
+}
+
+.btn-activar {
+  background: #2e7d32 !important;
+}
+
+@media (max-width: 768px) {
+
+  .usuario-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .usuario-item button {
+    width: 100%;
+  }
+
+}
+.btn-bloqueado {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}

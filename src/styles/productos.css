@@ -1,0 +1,303 @@
+.lista-productos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* HEADER */
+/* HEADER - cambia orden de columnas */
+.header-lista {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 1.5fr auto;
+  padding: 8px 10px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #2e7d32;
+  border-bottom: 2px solid #2e7d32;
+}
+
+.fila-producto {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 1.5fr auto;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+/* stock con label */
+.stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stock-label {
+  font-size: 11px;
+  color: gray;
+}
+
+.stock-valor {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* precios más grandes */
+.precios {
+  display: flex;
+  flex-direction: column;
+  font-size: 15px;
+  font-weight: bold;
+  color: #1b5e20;
+}
+
+/* efecto hover */
+.fila-producto:hover {
+  background: #f5f5f5;
+}
+
+/* info izquierda */
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nombre {
+  font-weight: bold;
+}
+
+.codigo {
+  font-size: 12px;
+  color: gray;
+}
+
+/* botones */
+.acciones-lista {
+  display: flex;
+  gap: 5px;
+}
+
+.acciones-lista button {
+  border: none;
+  padding: 5px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.acciones-lista button:first-child {
+  background: #2e7d32;
+  color: white;
+}
+
+.acciones-lista button:last-child {
+  background: red;
+  color: white;
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+/* buscador */
+.buscador-container {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.input-buscador {
+  width: 100%;
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-buscador:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 5px rgba(46,125,50,0.3);
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width: 600px) {
+
+  /* ocultar header */
+  .header-lista {
+    display: none;
+  }
+
+  /* top bar vertical */
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buscador-container {
+    justify-content: center;
+  }
+
+  .input-buscador {
+    max-width: 100%;
+  }
+
+  /* filas tipo tarjeta */
+  .fila-producto {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .info {
+    margin-bottom: 5px;
+  }
+
+  .precios {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .stock {
+    text-align: left;
+  }
+
+  .acciones-lista {
+    justify-content: flex-end;
+  }
+}
+
+/* fondo */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+/* caja */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  width: 350px;
+  max-width: 90%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  animation: aparecer 0.2s ease;
+}
+
+/* animación */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* header */
+.modal-header h2 {
+  color: #2e7d32;
+  text-align: center;
+}
+
+/* body */
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* inputs */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.campo input,
+.campo select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s;
+}
+
+.campo input:focus,
+.campo select:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 5px rgba(46,125,50,0.3);
+}
+
+/* footer */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* botones */
+.btn-guardar {
+  flex: 1;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-guardar:hover {
+  background: #1b5e20;
+}
+
+.btn-cancelar {
+  flex: 1;
+  background: #ccc;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  background: #999;
+}
+
+/* error */
+.modal-body p {
+  font-size: 12px;
+  color: red;
+  margin: 0;
+}
