@@ -100,9 +100,7 @@ export default function Historial() {
 
     const enviarBoleta = async () => {
       const texto = "Prueba";
-        
-      alert("share: " + !!navigator.share);
-        
+
       try {
         await navigator.share({
           title: "Boleta",
