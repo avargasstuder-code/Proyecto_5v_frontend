@@ -6,17 +6,18 @@ function Ventas() {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [productosLista, setProductosLista] = useState([]);
   const [ciudades, setCiudades] = useState([]);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
-  const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
   const [categorias, setCategorias] = useState([]);
+  const [dias, setDias] = useState([]);
+
+  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
   const [diasCheque, setDiasCheque] = useState(0);
-  const [dias, setDias] = useState([]);
+
   const [paso, setPaso] = useState(1);
+  const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
 
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre: "",
@@ -33,28 +34,26 @@ function Ventas() {
 
   const cargarDatos = async () => {
     try {
-      const [productosRes, clientesRes, ciudadesRes, categoriasRes, diasRes] =
-        await Promise.all([
-          api.get("/productos"),
-          api.get("/clientes"),
-          api.get("/ciudades"),
-          api.get("/categorias"),
-          api.get("/clientes/dias")
-        ]);
+      const [p, c, ciu, cat, d] = await Promise.all([
+        api.get("/productos"),
+        api.get("/clientes"),
+        api.get("/ciudades"),
+        api.get("/categorias"),
+        api.get("/clientes/dias")
+      ]);
 
-      setProductos(productosRes.data);
-      setProductosLista(productosRes.data);
-      setClientes(clientesRes.data);
-      setCiudades(ciudadesRes.data);
-      setCategorias(categoriasRes.data);
-      setDias(diasRes.data);
-    } catch (error) {
-      console.error(error);
+      setProductos(p.data);
+      setClientes(c.data);
+      setCiudades(ciu.data);
+      setCategorias(cat.data);
+      setDias(d.data);
+    } catch (e) {
+      console.error(e);
       alert("Error cargando datos");
     }
   };
 
-  // 🔥 FIX IMPORTANTE: estado funcional correcto
+  // 🔥 carrito robusto (evita bugs en móvil)
   const agregarProducto = (producto) => {
     setCarrito(prev => {
       const existe = prev.find(p => p.producto_id === producto.id);
@@ -73,152 +72,194 @@ function Ventas() {
           producto_id: producto.id,
           nombre: producto.nombre,
           tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
+          tipo_venta: producto.tipo_venta,
           cantidad: 1,
           precio_carton: producto.precio_carton,
           precio_medio: producto.precio_medio,
-          precio_unitario: producto.precio_unitario,
-          tipo_venta: producto.tipo_venta
+          precio_unitario: producto.precio_unitario
         }
       ];
     });
   };
 
-  const eliminarProducto = (index) => {
-    setCarrito(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const cambiarTipo = (i, valor) => {
+  const cambiarCantidad = (i, val) => {
     setCarrito(prev =>
       prev.map((item, idx) =>
-        idx === i ? { ...item, tipo: valor } : item
+        idx === i ? { ...item, cantidad: Number(val) } : item
       )
     );
   };
 
-  const cambiarCantidad = (i, valor) => {
+  const cambiarTipo = (i, val) => {
     setCarrito(prev =>
       prev.map((item, idx) =>
-        idx === i ? { ...item, cantidad: Number(valor) } : item
+        idx === i ? { ...item, tipo: val } : item
       )
     );
   };
 
-  const calcularTotal = () => {
-    return carrito.reduce((acc, item) => {
+  const eliminar = (i) => {
+    setCarrito(prev => prev.filter((_, idx) => idx !== i));
+  };
+
+  const total = () =>
+    carrito.reduce((acc, i) => {
       const precio =
-        item.tipo_venta === "unitario"
-          ? item.precio_unitario
-          : item.tipo === "carton"
-          ? item.precio_carton
-          : item.precio_medio;
+        i.tipo_venta === "unitario"
+          ? i.precio_unitario
+          : i.tipo === "carton"
+          ? i.precio_carton
+          : i.precio_medio;
 
-      return acc + precio * item.cantidad;
+      return acc + precio * i.cantidad;
     }, 0);
-  };
-
-  const vender = async () => {
-    if (!carrito.length) return alert("Carrito vacío");
-    if (!clienteSeleccionado) return alert("Selecciona cliente");
-    if (!metodoPago) return alert("Selecciona método de pago");
-
-    try {
-      await api.post("/ventas", {
-        cliente_id: clienteSeleccionado,
-        metodo_pago: metodoPago,
-        dias_cheque: metodoPago === "cheque" ? diasCheque : null,
-        productos: carrito.map(item => ({
-          producto_id: item.producto_id,
-          tipo: item.tipo,
-          cantidad: item.cantidad
-        }))
-      });
-
-      alert("Venta realizada");
-      setCarrito([]);
-      setMetodoPago("");
-      setDiasCheque(0);
-      setPaso(1);
-      cargarDatos();
-    } catch (error) {
-      console.error(error);
-      alert("Error al vender");
-    }
-  };
 
   const productosFiltrados = productos.filter(p => {
     const nombre = p?.nombre || "";
-
     return (
       nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
       (!categoriaSeleccionada || p.categoria_id == categoriaSeleccionada)
     );
   });
 
+  const vender = async () => {
+    if (!carrito.length) return alert("Carrito vacío");
+
+    try {
+      await api.post("/ventas", {
+        cliente_id: clienteSeleccionado,
+        metodo_pago: metodoPago,
+        dias_cheque: metodoPago === "cheque" ? diasCheque : null,
+        productos: carrito.map(i => ({
+          producto_id: i.producto_id,
+          tipo: i.tipo,
+          cantidad: i.cantidad
+        }))
+      });
+
+      alert("Venta realizada");
+      setCarrito([]);
+      setPaso(1);
+      setMetodoPago("");
+      setDiasCheque(0);
+      cargarDatos();
+    } catch (e) {
+      console.error(e);
+      alert("Error al vender");
+    }
+  };
+
   // =========================
-  // PASO 2: CARRITO
+  // PASO 2 - CARRITO
   // =========================
   if (paso === 2) {
     return (
       <div className="container">
-        <button onClick={() => setPaso(1)}>← Volver</button>
+        <div className="carrito-header">
+          <button className="btn-volver" onClick={() => setPaso(1)}>
+            ← Volver
+          </button>
+          <h1>Carrito</h1>
+        </div>
 
-        <h1>Carrito</h1>
+        <div className="carrito">
+          {carrito.length === 0 && <p>No hay productos</p>}
 
-        {carrito.map((item, i) => (
-          <div key={item.producto_id + "-" + i}>
-            <b>{item.nombre}</b>
+          {carrito.map((item, i) => (
+            <div key={item.producto_id + "-" + i} className="item">
+              <div>
+                <b>{item.nombre}</b>
 
-            {item.tipo_venta !== "unitario" && (
-              <select
-                value={item.tipo}
-                onChange={(e) => cambiarTipo(i, e.target.value)}
-              >
-                <option value="carton">Cartón</option>
-                <option value="medio">Medio</option>
-              </select>
-            )}
+                {item.tipo_venta !== "unitario" && (
+                  <select
+                    value={item.tipo}
+                    onChange={(e) => cambiarTipo(i, e.target.value)}
+                  >
+                    <option value="carton">Cartón</option>
+                    <option value="medio">Medio</option>
+                  </select>
+                )}
+              </div>
 
-            <input
-              type="number"
-              value={item.cantidad}
-              min="1"
-              onChange={(e) => cambiarCantidad(i, e.target.value)}
-            />
+              <input
+                type="number"
+                min="1"
+                value={item.cantidad}
+                onChange={(e) => cambiarCantidad(i, e.target.value)}
+              />
 
-            <button onClick={() => eliminarProducto(i)}>❌</button>
-          </div>
-        ))}
+              <button onClick={() => eliminar(i)}>❌</button>
+            </div>
+          ))}
+        </div>
 
-        <h2>Total: ${calcularTotal()}</h2>
+        <div className="total">Total: ${total()}</div>
 
-        <button onClick={vender}>Confirmar venta</button>
+        <button className="btn-vender" onClick={vender}>
+          Confirmar venta
+        </button>
       </div>
     );
   }
 
   // =========================
-  // PASO 1: PRODUCTOS
+  // PASO 1 - PRODUCTOS
   // =========================
   return (
     <div className="container">
       <h1>Ventas</h1>
 
-      <input
-        placeholder="Buscar"
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-      />
+      <div className="top-bar">
+        <input
+          className="input-buscador"
+          placeholder="Buscar..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
+
+      <div className="header-lista">
+        <span>Producto</span>
+        <span>Stock</span>
+        <span>Precios</span>
+        <span>Acción</span>
+      </div>
 
       {productosFiltrados.map(p => (
-        <div key={p.id}>
-          <span>{p.nombre}</span>
-          <button onClick={() => agregarProducto(p)}>+</button>
+        <div key={p.id} className="fila-producto">
+          <div className="info">
+            <span className="nombre">{p.nombre}</span>
+            <span className="codigo">{p.categoria || ""}</span>
+          </div>
+
+          <div className="stock">
+            <span className="stock-label">Stock</span>
+            <span className="stock-valor">{p.stock}</span>
+          </div>
+
+          <div className="precios">
+            {p.tipo_venta === "cigarro" ? (
+              <>
+                <span>C: ${p.precio_carton}</span>
+                <span>M: ${p.precio_medio}</span>
+              </>
+            ) : (
+              <span>${p.precio_unitario}</span>
+            )}
+          </div>
+
+          <div className="acciones-lista">
+            <button onClick={() => agregarProducto(p)}>
+              +
+            </button>
+          </div>
         </div>
       ))}
 
+      {/* 🔥 BOTÓN FLOTANTE (lo que querías) */}
       {carrito.length > 0 && (
-        <button onClick={() => setPaso(2)}>
-          Ver carrito ({carrito.length})
+        <button className="btn-flotante" onClick={() => setPaso(2)}>
+          🛒 Ver carrito ({carrito.length})
         </button>
       )}
     </div>
