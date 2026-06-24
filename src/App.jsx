@@ -6,7 +6,7 @@ import Productos from "./pages/productos";
 import Clientes from "./pages/clientes";
 import Navbar from "./components/navbar";
 import Historial from "./pages/historial";
-import Perfil from "./pages/Perfil";
+import Perfil from "./pages/perfil";
 
 function App() {
   const [isAuth, setIsAuth] = useState(() => {
