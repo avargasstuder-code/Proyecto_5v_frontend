@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/historial.css";
-import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min.js";
+import html2pdf from "html2pdf.js";
 
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
@@ -101,21 +101,44 @@ export default function Historial() {
 
 
   const descargarBoleta = () => {
-    const element = document.querySelector(".boleta");
+  const original = document.querySelector(".boleta");
 
-    if (!element) {
-      alert("No se encontró la boleta");
-      return;
-    }
+  if (!original) {
+    alert("No se encontró la boleta");
+    return;
+  }
 
-    const opt = {
+  // Clonamos el nodo para evitar el problema de html2canvas
+  // con elementos dentro de un modal "position: fixed"
+  const clone = original.cloneNode(true);
+  clone.style.position = "static";
+  clone.style.margin = "0";
+  clone.style.boxShadow = "none";
+
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.top = "0";
+  wrapper.style.left = "-9999px"; // fuera de la vista, pero renderizable
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  const opt = {
       margin: 0.5,
       filename: `boleta-${detalle?.venta?.id || "sin-id"}.pdf`,
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { format: "a4" }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf()
+      .set(opt)
+      .from(clone)
+      .save()
+      .then(() => document.body.removeChild(wrapper))
+      .catch((error) => {
+        console.error(error);
+        alert("Error al generar el PDF");
+        document.body.removeChild(wrapper);
+      });
   };
 
   return (
