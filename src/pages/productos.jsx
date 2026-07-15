@@ -17,7 +17,7 @@ export default function Productos() {
     codigo_barra: "",
     stock: 0,
     categoria_id: "",
-    tipo_venta: "cigarro",
+    tipo_venta: "",
     precio_carton: 0,
     precio_medio: 0,
     precio_unitario: 0
@@ -29,8 +29,6 @@ export default function Productos() {
     const res = await api.get("/productos");
     setProductos(res.data);
   };
-
-  
 
   const validarCodigo = async (codigo) => {
     if (!codigo) return;
@@ -84,9 +82,28 @@ export default function Productos() {
     setMostrarModal(true);
   };
 
+  // Determina el tipo de venta según el nombre de la categoría elegida
+  const esCategoriaCigarro = (categoriaId) => {
+    const categoria = categorias.find(c => c.id == categoriaId);
+    return categoria?.nombre?.toLowerCase().trim() === "cigarro";
+  };
+
+  const manejarCambioCategoria = (categoriaId) => {
+    const esCigarro = esCategoriaCigarro(categoriaId);
+    setForm(prev => ({
+      ...prev,
+      categoria_id: categoriaId,
+      tipo_venta: esCigarro ? "cigarro" : "unitario",
+      // reseteamos los precios que no aplican para evitar arrastrar valores viejos
+      precio_carton: esCigarro ? prev.precio_carton : 0,
+      precio_medio: esCigarro ? prev.precio_medio : 0,
+      precio_unitario: esCigarro ? 0 : prev.precio_unitario
+    }));
+  };
+
   const crearProducto = async () => {
     try {
-      await api.post("/productos", form);
+      await api.post("/productos", prepararDatos());
 
       limpiarForm();
       setMostrarModal(false);
@@ -99,7 +116,7 @@ export default function Productos() {
 
   const actualizarProducto = async () => {
     try {
-      await api.put(`/productos/${productoEditando}`, form);
+      await api.put(`/productos/${productoEditando}`, prepararDatos());
 
       limpiarForm();
       setModoEdicion(false);
@@ -264,9 +281,7 @@ export default function Productos() {
               <label>Categoría</label>
               <select
                 value={form.categoria_id}
-                onChange={(e) =>
-                  setForm({ ...form, categoria_id: e.target.value })
-                }
+                onChange={(e) => manejarCambioCategoria(e.target.value)}
               >
                 <option value="">Seleccionar categoría</option>
               
@@ -278,65 +293,53 @@ export default function Productos() {
               </select>
             </div>
 
-            {/* tipo venta */}
-            <div className="campo">
-              <label>Tipo de venta</label>
-              <select
-                value={form.tipo_venta}
-                onChange={(e) =>
-                  setForm({ ...form, tipo_venta: e.target.value })
-                }
-              >
-                <option value="cigarro">Cigarro</option>
-                <option value="unitario">Unitario</option>
-              </select>
-            </div>
+            {/* dinámico según categoría, ya no se elige manualmente */}
+            {form.categoria_id && (
+              form.tipo_venta === "cigarro" ? (
+                <>
+                  <div className="campo">
+                    <label>Precio cartón</label>
+                    <input
+                      type="number"
+                      value={form.precio_carton}
+                      onChange={(e) =>
+                        setForm({ ...form, precio_carton: Number(e.target.value) })
+                      }
+                    />
+                  </div>
 
-            {/* dinámico */}
-            {form.tipo_venta === "cigarro" ? (
-              <>
+                  <div className="campo">
+                    <label>Precio medio</label>
+                    <input
+                      type="number"
+                      value={form.precio_medio}
+                      onChange={(e) =>
+                        setForm({ ...form, precio_medio: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                </>
+              ) : (
                 <div className="campo">
-                  <label>Precio cartón</label>
+                  <label>Precio unitario</label>
                   <input
                     type="number"
-                    value={form.precio_carton}
+                    value={form.precio_unitario}
                     onChange={(e) =>
-                      setForm({ ...form, precio_carton: Number(e.target.value) })
+                      setForm({
+                        ...form,
+                        precio_unitario: Number(e.target.value)
+                      })
                     }
                   />
                 </div>
-
-                <div className="campo">
-                  <label>Precio medio</label>
-                  <input
-                    type="number"
-                    value={form.precio_medio}
-                    onChange={(e) =>
-                      setForm({ ...form, precio_medio: Number(e.target.value) })
-                    }
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="campo">
-                <label>Precio unitario</label>
-                <input
-                  type="number"
-                  value={form.precio_unitario}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      precio_unitario: Number(e.target.value)
-                    })
-                  }
-                />
-              </div>
+              )
             )}
             </div>
             <div className="modal-footer">
               <div className="acciones">
                 <button 
-                  disabled={errorCodigo}
+                  disabled={errorCodigo || !form.categoria_id}
                   onClick={modoEdicion ? actualizarProducto : crearProducto}
                 >
                   {modoEdicion ? "Actualizar" : "Guardar"}
