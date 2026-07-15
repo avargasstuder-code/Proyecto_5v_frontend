@@ -431,3 +431,7 @@ h1, h2 {
   font-weight: bold;
   color: #2e7d32;
 }
+
+.lista-productos {
+  padding-bottom: 90px;
+}

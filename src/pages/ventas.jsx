@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/ventas.css";
 
-console.log("Ventas renderizada");
 function Ventas({ setIsAuth }) {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
@@ -22,7 +21,12 @@ function Ventas({ setIsAuth }) {
     nombre: "", rut: "", direccion: "", ciudad_id: "", dia_id: "", telefono: ""
   });
 
-  const token = localStorage.getItem("token");
+  let token = null;
+  try {
+    token = localStorage.getItem("token");
+  } catch (e) {
+    console.error("No se pudo acceder a localStorage:", e);
+  }
 
   useEffect(() => {
     if (!token) window.location.href = "/";
@@ -129,20 +133,18 @@ function Ventas({ setIsAuth }) {
   };
 
   const eliminarProducto = (index) => {
-    setCarrito(carrito.filter((_, i) => i !== index));
+    setCarrito(prev => prev.filter((_, i) => i !== index));
   };
 
-  // cambio de tipo con spread
   const cambiarTipo = (i, valor) => {
-    setCarrito(carrito.map((item, idx) =>
+    setCarrito(prev => prev.map((item, idx) =>
       idx === i ? { ...item, tipo: valor } : item
     ));
   };
 
-  // cambio de cantidad con spread
   const cambiarCantidad = (i, valor) => {
-    setCarrito(carrito.map((item, idx) =>
-      idx === i ? { ...item, cantidad: Number(valor) } : item
+    setCarrito(prev => prev.map((item, idx) =>
+      idx === i ? { ...item, cantidad: Number(valor) || 0 } : item
     ));
   };
 
