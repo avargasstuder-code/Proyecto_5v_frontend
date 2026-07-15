@@ -7,19 +7,15 @@ function Ventas({ setIsAuth }) {
   const [carrito, setCarrito] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [productosLista, setProductosLista] = useState([]);
-  const [ciudades, setCiudades] = useState([]);
   const [clienteSeleccionado, setClienteSeleccionado] = useState("");
-  const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
-  const [diasCheque, setDiasCheque] = useState(0);
-  const [dias, setDias] = useState([]);
+  const [diasCredito, setDiasCredito] = useState(0);
   const [paso, setPaso] = useState(1);
-  const [nuevoCliente, setNuevoCliente] = useState({
-    nombre: "", rut: "", direccion: "", ciudad_id: "", dia_id: "", telefono: ""
-  });
+
+  const metodosConDias = ["cheque", "credito"];
 
   let token = null;
   try {
@@ -38,20 +34,16 @@ function Ventas({ setIsAuth }) {
 
   const cargarDatos = async () => {
     try {
-      const [productosRes, clientesRes, ciudadesRes, categoriasRes, diasRes] =
+      const [productosRes, clientesRes, categoriasRes] =
         await Promise.all([
           api.get("/productos"),
           api.get("/clientes"),
-          api.get("/ciudades"),
-          api.get("/categorias"),
-          api.get("/clientes/dias")
+          api.get("/categorias")
         ]);
       setProductos(productosRes.data);
       setProductosLista(productosRes.data);
       setClientes(clientesRes.data);
-      setCiudades(ciudadesRes.data);
       setCategorias(categoriasRes.data);
-      setDias(diasRes.data);
     } catch (error) {
       console.error(error);
       alert("Error cargando datos");
@@ -85,42 +77,20 @@ function Ventas({ setIsAuth }) {
     localStorage.removeItem("clienteVenta");
   }, [productosLista]);
 
-  const validarRUT = (rut) => {
-    rut = rut.replace(/\./g, "").replace("-", "");
-    if (rut.length < 2) return false;
-    const cuerpo = rut.slice(0, -1);
-    let dv = rut.slice(-1).toUpperCase();
-    let suma = 0, multiplo = 2;
-    for (let i = cuerpo.length - 1; i >= 0; i--) {
-      suma += multiplo * cuerpo[i];
-      multiplo = multiplo < 7 ? multiplo + 1 : 2;
-    }
-    const dvEsperado = 11 - (suma % 11);
-    let dvFinal = dvEsperado === 11 ? "0" : dvEsperado === 10 ? "K" : dvEsperado.toString();
-    return dv === dvFinal;
-  };
-
   const agregarProducto = (producto) => {
-    console.log("ANTES:", carrito.length);
-    
-    setCarrito(prev => {
-      const nuevo = [
-        ...prev,
-        {
-          producto_id: producto.id,
-          nombre: producto.nombre,
-          tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
-          cantidad: 1,
-          precio_carton: producto.precio_carton,
-          precio_medio: producto.precio_medio,
-          precio_unitario: producto.precio_unitario,
-          tipo_venta: producto.tipo_venta
-        }
-      ];
-    
-      console.log("DESPUÉS:", nuevo.length);
-      return nuevo;
-    });
+    setCarrito(prev => [
+      ...prev,
+      {
+        producto_id: producto.id,
+        nombre: producto.nombre,
+        tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
+        cantidad: 1,
+        precio_carton: producto.precio_carton,
+        precio_medio: producto.precio_medio,
+        precio_unitario: producto.precio_unitario,
+        tipo_venta: producto.tipo_venta
+      }
+    ]);
   };
 
   const calcularTotal = () => {
@@ -152,13 +122,15 @@ function Ventas({ setIsAuth }) {
     if (carrito.length === 0) return alert("El carrito está vacío");
     if (!clienteSeleccionado) return alert("Debes seleccionar un cliente");
     if (!metodoPago) return alert("Selecciona método de pago");
-    if (metodoPago === "cheque" && diasCheque <= 0) return alert("Ingresa los días del cheque");
+    if (metodosConDias.includes(metodoPago) && diasCredito <= 0) {
+      return alert("Ingresa los días");
+    }
 
     try {
       await api.post("/ventas", {
         cliente_id: clienteSeleccionado,
         metodo_pago: metodoPago,
-        dias_cheque: metodoPago === "cheque" ? diasCheque : null,
+        dias_cheque: metodosConDias.includes(metodoPago) ? diasCredito : null,
         productos: carrito.map(item => ({
           producto_id: item.producto_id,
           tipo: item.tipo,
@@ -169,30 +141,12 @@ function Ventas({ setIsAuth }) {
       alert("Venta realizada");
       setCarrito([]);
       setMetodoPago("");
-      setDiasCheque(0);
+      setDiasCredito(0);
       setPaso(1);
       cargarDatos();
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.error || "Error al vender");
-    }
-  };
-
-  const crearCliente = async () => {
-    if (!nuevoCliente.nombre || !nuevoCliente.rut || !nuevoCliente.ciudad_id || !nuevoCliente.dia_id) {
-      return alert("Nombre, RUT, ciudad y día son obligatorios");
-    }
-    if (!validarRUT(nuevoCliente.rut)) return alert("RUT inválido");
-    try {
-      const res = await api.post("/clientes", nuevoCliente);
-      const clientesActualizados = await api.get("/clientes");
-      setClientes(clientesActualizados.data);
-      setClienteSeleccionado(res.data.id);
-      setMostrarNuevoCliente(false);
-      setNuevoCliente({ nombre: "", rut: "", direccion: "", ciudad_id: "", dia_id: "", telefono: "" });
-      alert("Cliente creado");
-    } catch (error) {
-      alert(error.response?.data?.error || "Error al crear cliente");
     }
   };
 
@@ -208,15 +162,6 @@ function Ventas({ setIsAuth }) {
 
     return coincideBusqueda && coincideCategoria;
   });
-
-  if (paso === 2) {
-  console.log("Mostrando carrito");
-  } else {
-    console.log("Mostrando productos");
-  }
-  
-  console.log("Carrito:", carrito);
-  console.log("Productos:", productos.length);
 
   if (paso === 2) {
     return (
@@ -264,53 +209,26 @@ function Ventas({ setIsAuth }) {
               <option value="">Seleccionar cliente</option>
               {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} - {c.rut}</option>)}
             </select>
-            <button className="btn-secundario" onClick={() => setMostrarNuevoCliente(true)}>+ Nuevo</button>
           </div>
         </div>
 
         <div className="card-seccion">
           <h2>Método de Pago</h2>
           <div className="metodos">
-            {["efectivo", "transferencia", "cheque"].map(m => (
+            {["efectivo", "transferencia", "cheque", "credito"].map(m => (
               <button key={m} className={metodoPago === m ? "metodo activo" : "metodo"}
                 onClick={() => setMetodoPago(m)}>
                 {m.charAt(0).toUpperCase() + m.slice(1)}
               </button>
             ))}
           </div>
-          {metodoPago === "cheque" && (
-            <input className="input" type="number" placeholder="Días del cheque"
-              value={diasCheque} onChange={(e) => setDiasCheque(Number(e.target.value))} />
+          {metodosConDias.includes(metodoPago) && (
+            <input className="input" type="number" placeholder="Días"
+              value={diasCredito} onChange={(e) => setDiasCredito(Number(e.target.value))} />
           )}
         </div>
 
         <button className="btn-vender" onClick={vender}>Confirmar venta</button>
-
-        {mostrarNuevoCliente && (
-          <div className="modal">
-            <div className="modal-content">
-              <h2>Nuevo Cliente</h2>
-              <input placeholder="Nombre" onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
-              <input placeholder="RUT" onChange={(e) => setNuevoCliente({ ...nuevoCliente, rut: e.target.value })} />
-              <input placeholder="Dirección" onChange={(e) => setNuevoCliente({ ...nuevoCliente, direccion: e.target.value })} />
-              <select className="input" value={nuevoCliente.ciudad_id}
-                onChange={(e) => setNuevoCliente({ ...nuevoCliente, ciudad_id: e.target.value })}>
-                <option value="">Seleccionar ciudad</option>
-                {ciudades.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-              </select>
-              <select className="input" value={nuevoCliente.dia_id}
-                onChange={(e) => setNuevoCliente({ ...nuevoCliente, dia_id: e.target.value })}>
-                <option value="">Seleccionar día de visita</option>
-                {dias.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
-              </select>
-              <input placeholder="Teléfono" onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
-              <div className="acciones">
-                <button onClick={crearCliente}>Guardar</button>
-                <button onClick={() => setMostrarNuevoCliente(false)}>Cancelar</button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -362,7 +280,7 @@ function Ventas({ setIsAuth }) {
 
       {carrito.length > 0 && (
         <button className="btn-flotante" onClick={() => setPaso(2)}>
-          🛒 Ver carrito ({carrito.length})
+          Ver carrito ({carrito.length})
         </button>
       )}
     </div>
