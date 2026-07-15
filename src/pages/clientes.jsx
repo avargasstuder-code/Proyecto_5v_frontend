@@ -201,15 +201,17 @@ export default function Clientes() {
 
         <>
 
-          <button
-            className="btn-agregar"
-            onClick={() => {
-              setNuevoCliente(formClienteInicial);
-              setMostrarNuevoCliente(true);
-            }}
-          >
-            + Agregar cliente
-          </button>
+          <div className="acciones-clientes">
+            <button
+              className="btn-agregar"
+              onClick={() => {
+                setNuevoCliente(formClienteInicial);
+                setMostrarNuevoCliente(true);
+              }}
+            >
+              + Agregar cliente
+            </button>
+          </div>
 
           <div className="grid-ciudades">
 
@@ -580,6 +582,12 @@ export default function Clientes() {
               <b>Cliente:</b>
               {" "}
               {detalleVenta.venta.cliente}
+            </p>
+
+            <p>
+              <b>Rut:</b>
+              {" "}
+              {detalleVenta.venta.rut}
             </p>
 
             <p>

@@ -63,6 +63,7 @@ export default function Historial() {
             <h2>BOLETA</h2>
 
             <p>Cliente: ${detalle.venta.cliente}</p>
+            <p>Rut: ${detalle.venta.rut}</p>
             <p>Vendedor: ${detalle.venta.usuario}</p>
             <p>Fecha: ${new Date(detalle.venta.fecha).toLocaleString()}</p>
             <p>Pago: ${detalle.venta.metodo_pago === "cheque"
@@ -168,6 +169,7 @@ export default function Historial() {
               <h2>Boleta</h2>
 
               <p><b>Cliente:</b> {detalle.venta.cliente}</p>
+              <p><b>Rut:</b> {detalle.venta.rut}</p>
               <p><b>Vendedor:</b> {detalle.venta.usuario}</p>
               <p><b>Fecha:</b> {new Date(detalle.venta.fecha).toLocaleString()}</p>
               <p><b>Pago:</b> 

@@ -4,6 +4,11 @@
   gap: 15px;
 }
 
+.acciones-clientes {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
 
 .grid-clientes {
   display: grid;
