@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/historial.css";
-import html2pdf from "html2pdf.js";
+import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min.js";
 
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
@@ -101,44 +101,27 @@ export default function Historial() {
 
 
   const descargarBoleta = () => {
-  const original = document.querySelector(".boleta");
+    const original = document.querySelector(".boleta");
 
-  if (!original) {
-    alert("No se encontró la boleta");
-    return;
-  }
+    if (!original) {
+      alert("No se encontró la boleta");
+      return;
+    }
 
-  // Clonamos el nodo para evitar el problema de html2canvas
-  // con elementos dentro de un modal "position: fixed"
-  const clone = original.cloneNode(true);
-  clone.style.position = "static";
-  clone.style.margin = "0";
-  clone.style.boxShadow = "none";
+    // Clonamos el nodo para no tocar la vista real y quitamos los botones
+    // antes de capturar, así no aparecen en el PDF
+    const clone = original.cloneNode(true);
+    const acciones = clone.querySelector(".acciones-boleta");
+    if (acciones) acciones.remove();
 
-  const wrapper = document.createElement("div");
-  wrapper.style.position = "fixed";
-  wrapper.style.top = "0";
-  wrapper.style.left = "-9999px"; // fuera de la vista, pero renderizable
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
-
-  const opt = {
+    const opt = {
       margin: 0.5,
       filename: `boleta-${detalle?.venta?.id || "sin-id"}.pdf`,
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      html2canvas: { scale: 2 },
       jsPDF: { format: "a4" }
     };
 
-    html2pdf()
-      .set(opt)
-      .from(clone)
-      .save()
-      .then(() => document.body.removeChild(wrapper))
-      .catch((error) => {
-        console.error(error);
-        alert("Error al generar el PDF");
-        document.body.removeChild(wrapper);
-      });
+    html2pdf().set(opt).from(clone).save();
   };
 
   return (
