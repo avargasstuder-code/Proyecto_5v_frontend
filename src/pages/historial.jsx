@@ -74,10 +74,8 @@ export default function Historial() {
             ${detalle.productos.map(p => `
               <div class="item">
                 <span>${p.nombre}</span>
-                <span>${p.cantidad}</span>
-              </div>
-              <div class="item">
                 <span>${p.tipo_unidad}</span>
+                <span>x${p.cantidad}</span>
                 <span>$${p.precio_unitario * p.cantidad}</span>
               </div>
             `).join("")}

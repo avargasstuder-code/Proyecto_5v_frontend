@@ -207,7 +207,7 @@ function Ventas({ setIsAuth }) {
           <div className="cliente-box">
             <select value={clienteSeleccionado} onChange={(e) => setClienteSeleccionado(e.target.value)} className="input">
               <option value="">Seleccionar cliente</option>
-              {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} - {c.rut}</option>)}
+              {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} {c.apellido} - {c.rut}</option>)}
             </select>
           </div>
         </div>

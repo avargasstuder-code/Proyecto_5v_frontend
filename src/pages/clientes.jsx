@@ -21,11 +21,37 @@ export default function Clientes() {
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
 
+  // NUEVO CLIENTE
+  const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
+  const [ciudades, setCiudades] = useState([]);
+  const [diasVisita, setDiasVisita] = useState([]);
+  const formClienteInicial = {
+    nombre: "",
+    apellido: "",
+    rut: "",
+    direccion: "",
+    telefono: "",
+    ciudad_id: "",
+    dia_id: ""
+  };
+  const [nuevoCliente, setNuevoCliente] = useState(formClienteInicial);
+
   // CLIENTES
   useEffect(() => {
 
     api.get("/clientes")
       .then(res => setClientes(res.data));
+
+  }, []);
+
+  // CIUDADES Y DÍAS (para el formulario de nuevo cliente)
+  useEffect(() => {
+
+    api.get("/ciudades")
+      .then(res => setCiudades(res.data));
+
+    api.get("/clientes/dias")
+      .then(res => setDiasVisita(res.data));
 
   }, []);
 
@@ -55,6 +81,53 @@ export default function Clientes() {
   const clientesFiltrados = diaSeleccionado
     ? clientes.filter(c => c.dia === diaSeleccionado)
     : [];
+
+  // VALIDAR RUT CHILENO
+  const validarRUT = (rut) => {
+    rut = rut.replace(/\./g, "").replace("-", "");
+    if (rut.length < 2) return false;
+    const cuerpo = rut.slice(0, -1);
+    let dv = rut.slice(-1).toUpperCase();
+    let suma = 0, multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += multiplo * cuerpo[i];
+      multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    const dvEsperado = 11 - (suma % 11);
+    let dvFinal = dvEsperado === 11 ? "0" : dvEsperado === 10 ? "K" : dvEsperado.toString();
+    return dv === dvFinal;
+  };
+
+  // CREAR CLIENTE
+  const crearCliente = async () => {
+
+    if (!nuevoCliente.nombre || !nuevoCliente.apellido || !nuevoCliente.rut || !nuevoCliente.ciudad_id || !nuevoCliente.dia_id) {
+      return alert("Nombre, apellido, RUT, ciudad y día son obligatorios");
+    }
+
+    if (!validarRUT(nuevoCliente.rut)) {
+      return alert("RUT inválido");
+    }
+
+    try {
+
+      await api.post("/clientes", nuevoCliente);
+
+      const res = await api.get("/clientes");
+      setClientes(res.data);
+
+      setNuevoCliente(formClienteInicial);
+      setMostrarNuevoCliente(false);
+
+      alert("Cliente creado");
+
+    } catch (error) {
+
+      console.error(error);
+      alert(error.response?.data?.error || "Error al crear cliente");
+
+    }
+  };
 
   // DETALLE VENTA
   const verDetalleVenta = async (ventaId) => {
@@ -126,28 +199,42 @@ export default function Clientes() {
       {/* VISTA 1 */}
       {!diaSeleccionado && !clienteSeleccionado && (
 
-        <div className="grid-ciudades">
+        <>
 
-          {diasUnicos.map(dia => (
+          <button
+            className="btn-agregar"
+            onClick={() => {
+              setNuevoCliente(formClienteInicial);
+              setMostrarNuevoCliente(true);
+            }}
+          >
+            + Agregar cliente
+          </button>
 
-            <div
-              key={dia}
-              className="card-ciudad"
-              onClick={() => setDiaSeleccionado(dia)}
-            >
-              <h3>{dia}</h3>
+          <div className="grid-ciudades">
 
-              <p>
-                {
-                  clientes.filter(c => c.dia === dia).length
-                } clientes
-              </p>
+            {diasUnicos.map(dia => (
 
-            </div>
+              <div
+                key={dia}
+                className="card-ciudad"
+                onClick={() => setDiaSeleccionado(dia)}
+              >
+                <h3>{dia}</h3>
 
-          ))}
+                <p>
+                  {
+                    clientes.filter(c => c.dia === dia).length
+                  } clientes
+                </p>
 
-        </div>
+              </div>
+
+            ))}
+
+          </div>
+
+        </>
       )}
 
       {/* VISTA 2 */}
@@ -173,7 +260,7 @@ export default function Clientes() {
                 onClick={() => setClienteSeleccionado(c)}
               >
 
-                <h3>{c.nombre}</h3>
+                <h3>{c.nombre} {c.apellido}</h3>
 
                 <p>{c.rut}</p>
 
@@ -203,7 +290,7 @@ export default function Clientes() {
             ← Volver
           </button>
 
-          <h2>{clienteSeleccionado.nombre}</h2>
+          <h2>{clienteSeleccionado.nombre} {clienteSeleccionado.apellido}</h2>
 
           {/* PRODUCTOS FRECUENTES */}
           <div className="panel">
@@ -387,7 +474,98 @@ export default function Clientes() {
         </>
       )}
 
-      {/* MODAL */}
+      {/* MODAL NUEVO CLIENTE */}
+      {mostrarNuevoCliente && (
+
+        <div className="modal">
+
+          <div className="modal-content">
+
+            <h2>Nuevo Cliente</h2>
+
+            <input
+              placeholder="Nombre"
+              value={nuevoCliente.nombre}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Apellido"
+              value={nuevoCliente.apellido}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, apellido: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="RUT"
+              value={nuevoCliente.rut}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, rut: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Dirección"
+              value={nuevoCliente.direccion}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, direccion: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Teléfono"
+              value={nuevoCliente.telefono}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })
+              }
+            />
+
+            <select
+              className="input"
+              value={nuevoCliente.ciudad_id}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, ciudad_id: e.target.value })
+              }
+            >
+              <option value="">Seleccionar ciudad</option>
+              {ciudades.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="input"
+              value={nuevoCliente.dia_id}
+              onChange={(e) =>
+                setNuevoCliente({ ...nuevoCliente, dia_id: e.target.value })
+              }
+            >
+              <option value="">Seleccionar día de visita</option>
+              {diasVisita.map(d => (
+                <option key={d.id} value={d.id}>
+                  {d.nombre}
+                </option>
+              ))}
+            </select>
+
+            <div className="acciones">
+              <button onClick={crearCliente}>Guardar</button>
+              <button onClick={() => setMostrarNuevoCliente(false)}>
+                Cancelar
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* MODAL DETALLE VENTA */}
       {mostrarDetalle &&
         detalleVenta?.venta &&
         detalleVenta?.productos && (
