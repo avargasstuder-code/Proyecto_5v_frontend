@@ -9,8 +9,8 @@ export default function Perfil() {
   const [nuevoUsuario, setNuevoUsuario] = useState({
     nombre: "", email: "", password: "", rol: "vendedor"
   });
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
-  // ✅ Token DESPUÉS de los hooks
   const token = localStorage.getItem("token");
   const payload = token ? JSON.parse(atob(token.split(".")[1])) : null;
   const esAdmin = payload?.rol === "admin";
@@ -37,8 +37,10 @@ export default function Perfil() {
       await api.put("/auth/cambiar-password", passwords);
       alert("Contraseña actualizada");
       setPasswords({ actual: "", nueva: "" });
+      setMostrarConfirmacion(false);
     } catch (error) {
       alert(error.response?.data?.error || "Error");
+      setMostrarConfirmacion(false);
     }
   };
 
@@ -82,7 +84,16 @@ export default function Perfil() {
           value={passwords.nueva}
           onChange={(e) => setPasswords({ ...passwords, nueva: e.target.value })}
         />
-        <button onClick={cambiarPassword}>Guardar contraseña</button>
+        <button
+          onClick={() => {
+            if (!passwords.actual || !passwords.nueva) {
+              return alert("Completa ambas contraseñas");
+            }
+            setMostrarConfirmacion(true);
+          }}
+        >
+          Guardar contraseña
+        </button>
       </div>
 
       {esAdmin && (
@@ -97,7 +108,7 @@ export default function Perfil() {
             <input
               placeholder="Correo"
               value={nuevoUsuario.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value.toLowerCase() })}
+              onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, email: e.target.value.toLowerCase() })}
             />
             <input
               type="password"
@@ -143,6 +154,19 @@ export default function Perfil() {
             </div>
           </div>
         </>
+      )}
+
+      {/* MODAL CONFIRMACIÓN CAMBIO DE CONTRASEÑA */}
+      {mostrarConfirmacion && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>¿Estás seguro que quieres cambiar la contraseña?</h2>
+            <div className="acciones">
+              <button onClick={cambiarPassword}>Sí</button>
+              <button onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
