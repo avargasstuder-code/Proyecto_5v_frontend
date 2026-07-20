@@ -1,15 +1,3 @@
-.grid-ciudades {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-}
-
-.acciones-clientes {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
 .grid-clientes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -312,4 +300,121 @@ select {
 .historial-stock-mini small {
   color: #666;
   font-size: 11px;
+}
+.acciones-clientes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-secundario-clientes {
+  background: white;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+}
+
+.btn-secundario-clientes:hover {
+  background: #f0f0f0;
+}
+
+/* Listado completo de clientes */
+.listado-clientes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.fila-cliente-listado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.info-cliente-listado {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.info-cliente-listado strong {
+  font-size: 15px;
+  min-width: 140px;
+}
+
+.estado-activo {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.estado-inactivo {
+  color: #c62828;
+  font-weight: bold;
+}
+
+.acciones-cliente-listado {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.acciones-cliente-listado button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  background: #2e7d32;
+  white-space: nowrap;
+}
+
+.acciones-cliente-listado .btn-desactivar {
+  background: #c62828;
+}
+
+.acciones-cliente-listado .btn-activar {
+  background: #2e7d32;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .acciones-clientes {
+    justify-content: stretch;
+  }
+
+  .acciones-clientes button {
+    flex: 1;
+  }
+
+  .fila-cliente-listado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .info-cliente-listado {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .acciones-cliente-listado {
+    justify-content: stretch;
+  }
+
+  .acciones-cliente-listado button {
+    flex: 1;
+  }
 }

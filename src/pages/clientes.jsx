@@ -36,6 +36,14 @@ export default function Clientes() {
   };
   const [nuevoCliente, setNuevoCliente] = useState(formClienteInicial);
 
+  // LISTADO DE CLIENTES
+  const [mostrarListado, setMostrarListado] = useState(false);
+  const [clientesTodos, setClientesTodos] = useState([]);
+
+  // EDITAR CLIENTE
+  const [mostrarEditarCliente, setMostrarEditarCliente] = useState(false);
+  const [clienteEditar, setClienteEditar] = useState(null);
+
   // CLIENTES
   useEffect(() => {
 
@@ -44,7 +52,7 @@ export default function Clientes() {
 
   }, []);
 
-  // CIUDADES Y DÍAS (para el formulario de nuevo cliente)
+  // CIUDADES Y DÍAS (para los formularios)
   useEffect(() => {
 
     api.get("/ciudades")
@@ -129,6 +137,92 @@ export default function Clientes() {
     }
   };
 
+  // CARGAR LISTADO COMPLETO
+  const cargarListado = async () => {
+    try {
+      const res = await api.get("/clientes/todos");
+      setClientesTodos(res.data);
+      setMostrarListado(true);
+    } catch (error) {
+      console.error(error);
+      alert("Error al cargar el listado de clientes");
+    }
+  };
+
+  // ABRIR EDICIÓN
+  const abrirEditar = (cliente) => {
+    setClienteEditar({
+      id: cliente.id,
+      nombre: cliente.nombre,
+      apellido: cliente.apellido,
+      rut: cliente.rut,
+      direccion: cliente.direccion || "",
+      telefono: cliente.telefono || "",
+      ciudad_id: cliente.ciudad_id || "",
+      dia_id: cliente.dia_id || ""
+    });
+    setMostrarEditarCliente(true);
+  };
+
+  // GUARDAR EDICIÓN
+  const actualizarCliente = async () => {
+
+    if (!clienteEditar.nombre || !clienteEditar.apellido || !clienteEditar.rut || !clienteEditar.ciudad_id || !clienteEditar.dia_id) {
+      return alert("Nombre, apellido, RUT, ciudad y día son obligatorios");
+    }
+
+    if (!validarRUT(clienteEditar.rut)) {
+      return alert("RUT inválido");
+    }
+
+    try {
+
+      await api.put(`/clientes/${clienteEditar.id}`, clienteEditar);
+
+      const [resTodos, resClientes] = await Promise.all([
+        api.get("/clientes/todos"),
+        api.get("/clientes")
+      ]);
+
+      setClientesTodos(resTodos.data);
+      setClientes(resClientes.data);
+
+      setMostrarEditarCliente(false);
+      setClienteEditar(null);
+
+      alert("Cliente actualizado");
+
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.error || "Error al actualizar cliente");
+    }
+  };
+
+  // ACTIVAR / DESACTIVAR
+  const toggleActivo = async (cliente) => {
+
+    const accion = cliente.activo ? "desactivar" : "activar";
+
+    if (!confirm(`¿Seguro que quieres ${accion} a ${cliente.nombre} ${cliente.apellido}?`)) return;
+
+    try {
+
+      await api.put(`/clientes/${cliente.id}/activo`, { activo: !cliente.activo });
+
+      const [resTodos, resClientes] = await Promise.all([
+        api.get("/clientes/todos"),
+        api.get("/clientes")
+      ]);
+
+      setClientesTodos(resTodos.data);
+      setClientes(resClientes.data);
+
+    } catch (error) {
+      console.error(error);
+      alert("Error al cambiar el estado del cliente");
+    }
+  };
+
   // DETALLE VENTA
   const verDetalleVenta = async (ventaId) => {
 
@@ -197,7 +291,7 @@ export default function Clientes() {
       <h1>Clientes</h1>
 
       {/* VISTA 1 */}
-      {!diaSeleccionado && !clienteSeleccionado && (
+      {!diaSeleccionado && !clienteSeleccionado && !mostrarListado && (
 
         <>
 
@@ -210,6 +304,13 @@ export default function Clientes() {
               }}
             >
               + Agregar cliente
+            </button>
+
+            <button
+              className="btn-agregar btn-secundario-clientes"
+              onClick={cargarListado}
+            >
+              Listado de clientes
             </button>
           </div>
 
@@ -229,6 +330,60 @@ export default function Clientes() {
                     clientes.filter(c => c.dia === dia).length
                   } clientes
                 </p>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </>
+      )}
+
+      {/* LISTADO COMPLETO DE CLIENTES */}
+      {mostrarListado && (
+        <>
+
+          <button
+            className="btn-volver"
+            onClick={() => setMostrarListado(false)}
+          >
+            ← Volver
+          </button>
+
+          <h2>Listado de clientes</h2>
+
+          <div className="listado-clientes">
+
+            {clientesTodos.length === 0 && (
+              <p>No hay clientes registrados.</p>
+            )}
+
+            {clientesTodos.map(c => (
+
+              <div key={c.id} className="fila-cliente-listado">
+
+                <div className="info-cliente-listado">
+                  <strong>{c.nombre} {c.apellido}</strong>
+                  <span>{c.rut}</span>
+                  <span>{c.telefono}</span>
+                  <span>{c.direccion}</span>
+                  <span>{c.ciudad} · {c.dia}</span>
+                  {c.vendedor && <span>Vendedor: {c.vendedor}</span>}
+                  <span className={c.activo ? "estado-activo" : "estado-inactivo"}>
+                    {c.activo ? "Activo" : "Inactivo"}
+                  </span>
+                </div>
+
+                <div className="acciones-cliente-listado">
+                  <button onClick={() => abrirEditar(c)}>Editar</button>
+                  <button
+                    className={c.activo ? "btn-desactivar" : "btn-activar"}
+                    onClick={() => toggleActivo(c)}
+                  >
+                    {c.activo ? "Desactivar" : "Activar"}
+                  </button>
+                </div>
 
               </div>
 
@@ -558,6 +713,102 @@ export default function Clientes() {
             <div className="acciones">
               <button onClick={crearCliente}>Guardar</button>
               <button onClick={() => setMostrarNuevoCliente(false)}>
+                Cancelar
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* MODAL EDITAR CLIENTE */}
+      {mostrarEditarCliente && clienteEditar && (
+
+        <div className="modal">
+
+          <div className="modal-content">
+
+            <h2>Editar Cliente</h2>
+
+            <input
+              placeholder="Nombre"
+              value={clienteEditar.nombre}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, nombre: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Apellido"
+              value={clienteEditar.apellido}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, apellido: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="RUT"
+              value={clienteEditar.rut}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, rut: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Dirección"
+              value={clienteEditar.direccion}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, direccion: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Teléfono"
+              value={clienteEditar.telefono}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, telefono: e.target.value })
+              }
+            />
+
+            <select
+              className="input"
+              value={clienteEditar.ciudad_id}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, ciudad_id: e.target.value })
+              }
+            >
+              <option value="">Seleccionar ciudad</option>
+              {ciudades.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="input"
+              value={clienteEditar.dia_id}
+              onChange={(e) =>
+                setClienteEditar({ ...clienteEditar, dia_id: e.target.value })
+              }
+            >
+              <option value="">Seleccionar día de visita</option>
+              {diasVisita.map(d => (
+                <option key={d.id} value={d.id}>
+                  {d.nombre}
+                </option>
+              ))}
+            </select>
+
+            <div className="acciones">
+              <button onClick={actualizarCliente}>Guardar</button>
+              <button
+                onClick={() => {
+                  setMostrarEditarCliente(false);
+                  setClienteEditar(null);
+                }}
+              >
                 Cancelar
               </button>
             </div>
