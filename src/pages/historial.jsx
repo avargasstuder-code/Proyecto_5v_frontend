@@ -60,7 +60,7 @@ export default function Historial() {
               }
             </style>
           <body>
-            <h2>BOLETA</h2>
+            <h2>Guía de venta</h2>
 
             <p>Cliente: ${detalle.venta.cliente}</p>
             <p>Rut: ${detalle.venta.rut}</p>
@@ -109,20 +109,46 @@ export default function Historial() {
       return;
     }
 
-    // Clonamos el nodo para no tocar la vista real y quitamos los botones
-    // antes de capturar, así no aparecen en el PDF
+    // Clonamos el nodo, quitamos los botones y le aplicamos el
+    // formato angosto de impresora térmica (58mm) antes de capturar
     const clone = original.cloneNode(true);
     const acciones = clone.querySelector(".acciones-boleta");
     if (acciones) acciones.remove();
+    clone.classList.add("boleta-58mm");
+
+    // 58mm de ancho físico, convertido a píxeles a 96dpi (~219px)
+    const anchoPx = Math.round((58 / 25.4) * 96);
+
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "fixed";
+    wrapper.style.top = "0";
+    wrapper.style.left = "-9999px";
+    clone.style.width = `${anchoPx}px`;
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    // Medimos el alto real ya angostada, para no dejar espacio en blanco
+    // ni cortar contenido (el ticket crece o se achica según los productos)
+    const altoPx = clone.scrollHeight;
+    const altoMM = (altoPx / 96) * 25.4 + 5; // +5mm de margen de cola
 
     const opt = {
-      margin: 0.5,
-      filename: `boleta-${detalle?.venta?.id || "sin-id"}.pdf`,
-      html2canvas: { scale: 2 },
-      jsPDF: { format: "a4" }
+      margin: 0,
+      filename: `guia-venta-${detalle?.venta?.id || "sin-id"}.pdf`,
+      html2canvas: { scale: 3 },
+      jsPDF: { unit: "mm", format: [58, altoMM], orientation: "portrait" }
     };
 
-    html2pdf().set(opt).from(clone).save();
+    html2pdf()
+      .set(opt)
+      .from(clone)
+      .save()
+      .then(() => document.body.removeChild(wrapper))
+      .catch((error) => {
+        console.error(error);
+        alert("Error al generar el PDF");
+        document.body.removeChild(wrapper);
+      });
   };
 
   return (
@@ -166,7 +192,7 @@ export default function Historial() {
         <div className="modal">
             <div className="boleta">
 
-              <h2>Boleta</h2>
+              <h2>Guía de venta</h2>
 
               <p><b>Cliente:</b> {detalle.venta.cliente}</p>
               <p><b>Rut:</b> {detalle.venta.rut}</p>
