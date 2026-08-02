@@ -99,7 +99,7 @@ export default function Perfil() {
       {esAdmin && (
         <>
           <div className="card-perfil">
-            <h2>Crear vendedor</h2>
+            <h2>Crear Nuevo Usuario</h2>
             <input
               placeholder="Nombre"
               value={nuevoUsuario.nombre}

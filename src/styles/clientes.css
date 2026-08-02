@@ -418,3 +418,23 @@ select {
     flex: 1;
   }
 }
+/* Tarjeta del cliente en la lista por día, cuando tiene deuda pendiente */
+.cliente-con-deuda {
+  border: 2px solid #c62828;
+}
+ 
+.aviso-deuda-tarjeta {
+  color: #c62828;
+  font-weight: bold;
+  font-size: 13px;
+  margin-top: 6px;
+}
+ 
+.aviso-deuda-detalle {
+  background: #fdecea;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+ 

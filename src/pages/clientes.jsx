@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/clientes.css";
 
+const formatoCLP = (valor) => {
+  const numero = Math.round(Number(valor) || 0);
+  return numero.toLocaleString("es-CL", { maximumFractionDigits: 0 });
+};
+
 export default function Clientes() {
 
 
@@ -39,6 +44,7 @@ export default function Clientes() {
   // LISTADO DE CLIENTES
   const [mostrarListado, setMostrarListado] = useState(false);
   const [clientesTodos, setClientesTodos] = useState([]);
+  const [busquedaListado, setBusquedaListado] = useState("");
 
   // EDITAR CLIENTE
   const [mostrarEditarCliente, setMostrarEditarCliente] = useState(false);
@@ -89,6 +95,18 @@ export default function Clientes() {
   const clientesFiltrados = diaSeleccionado
     ? clientes.filter(c => c.dia === diaSeleccionado)
     : [];
+
+  // FILTRO DEL LISTADO COMPLETO (por nombre, apellido o RUT)
+  const clientesListadoFiltrados = clientesTodos.filter(c => {
+    const termino = busquedaListado.toLowerCase().trim();
+    if (!termino) return true;
+
+    const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase();
+    const rutLimpio = (c.rut || "").toLowerCase().replace(/\./g, "").replace("-", "");
+    const terminoLimpio = termino.replace(/\./g, "").replace("-", "");
+
+    return nombreCompleto.includes(termino) || rutLimpio.includes(terminoLimpio);
+  });
 
   // VALIDAR RUT CHILENO
   const validarRUT = (rut) => {
@@ -142,6 +160,7 @@ export default function Clientes() {
     try {
       const res = await api.get("/clientes/todos");
       setClientesTodos(res.data);
+      setBusquedaListado("");
       setMostrarListado(true);
     } catch (error) {
       console.error(error);
@@ -353,13 +372,21 @@ export default function Clientes() {
 
           <h2>Listado de clientes</h2>
 
+          <input
+            type="text"
+            placeholder="🔍 Buscar por nombre o RUT..."
+            className="input-buscador"
+            value={busquedaListado}
+            onChange={(e) => setBusquedaListado(e.target.value)}
+          />
+
           <div className="listado-clientes">
 
-            {clientesTodos.length === 0 && (
-              <p>No hay clientes registrados.</p>
+            {clientesListadoFiltrados.length === 0 && (
+              <p>No se encontraron clientes.</p>
             )}
 
-            {clientesTodos.map(c => (
+            {clientesListadoFiltrados.map(c => (
 
               <div key={c.id} className="fila-cliente-listado">
 
@@ -413,7 +440,7 @@ export default function Clientes() {
 
               <div
                 key={c.id}
-                className="cliente-click"
+                className={`cliente-click ${c.deuda_pendiente > 0 ? "cliente-con-deuda" : ""}`}
                 onClick={() => setClienteSeleccionado(c)}
               >
 
@@ -426,6 +453,12 @@ export default function Clientes() {
                 <p className="ciudad-cliente">
                   {c.ciudad}
                 </p>
+
+                {c.deuda_pendiente > 0 && (
+                  <p className="aviso-deuda-tarjeta">
+                    ⚠️ Debe ${formatoCLP(c.deuda_pendiente)}
+                  </p>
+                )}
 
               </div>
 
@@ -448,6 +481,12 @@ export default function Clientes() {
           </button>
 
           <h2>{clienteSeleccionado.nombre} {clienteSeleccionado.apellido}</h2>
+
+          {clienteSeleccionado.deuda_pendiente > 0 && (
+            <p className="aviso-deuda-tarjeta aviso-deuda-detalle">
+              ⚠️ Este cliente debe ${formatoCLP(clienteSeleccionado.deuda_pendiente)}
+            </p>
+          )}
 
           {/* PRODUCTOS FRECUENTES */}
           <div className="panel">

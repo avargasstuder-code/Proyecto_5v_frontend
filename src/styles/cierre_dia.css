@@ -1,0 +1,264 @@
+.cierre-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.cierre-tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: white;
+  color: #2e7d32;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.cierre-tabs button:hover {
+  background: #f0f0f0;
+}
+
+.cierre-tabs button.activo {
+  background: #2e7d32;
+  color: white;
+}
+
+.cierre-fecha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.cierre-fecha label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.cierre-fecha input[type="date"] {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.selector-fecha {
+  display: flex;
+  gap: 6px;
+}
+
+.selector-fecha select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .selector-fecha select {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+}
+
+.cierre-resumen-rapido {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.badge-pendiente {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+/* ── LISTA DE VENTAS PARA DEFINIR PAGO ── */
+
+.lista-cierre {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fila-cierre {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.fila-cierre.guardado {
+  box-shadow: 0 2px 6px rgba(46,125,50,0.15);
+  border: 1px solid #c8e6c9;
+}
+
+.fila-cierre-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fila-cierre-info .cliente {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.fila-cierre-info .monto {
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.fila-cierre-info .estado-guardado {
+  font-size: 13px;
+  color: #2e7d32;
+  width: 100%;
+}
+
+.fila-cierre-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.fila-cierre-controles select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 160px;
+  background: white;
+}
+
+.dias-plazo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dias-plazo button {
+  padding: 6px 10px;
+  border: none;
+  background: #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dias-plazo button:hover {
+  background: #b5b5b5;
+}
+
+.dias-plazo input[type="number"] {
+  width: 70px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.btn-guardar-fila {
+  margin-left: auto;
+  padding: 8px 16px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-guardar-fila:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-guardar-fila:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+/* ── RESUMEN / CUADRE ── */
+
+.resumen-cuadre {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fila-resumen {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  font-size: 15px;
+}
+
+.fila-resumen .metodo {
+  font-weight: bold;
+  flex: 1;
+}
+
+.fila-resumen .cantidad {
+  flex: 1;
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+}
+
+.fila-resumen .monto {
+  flex: 1;
+  text-align: right;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.fila-resumen.fila-total {
+  background: #2e7d32;
+  margin-top: 6px;
+}
+
+.fila-resumen.fila-total .metodo,
+.fila-resumen.fila-total .monto {
+  color: rgb(4, 4, 4);
+}
+
+/* ── RESPONSIVE CELULAR ── */
+@media (max-width: 768px) {
+  .fila-cierre-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fila-cierre-controles select {
+    min-width: 0;
+  }
+
+  .btn-guardar-fila {
+    margin-left: 0;
+  }
+
+  .dias-plazo {
+    flex-wrap: wrap;
+  }
+
+  .fila-resumen {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .fila-resumen .cantidad,
+  .fila-resumen .monto {
+    text-align: left;
+  }
+}

@@ -435,3 +435,10 @@ h1, h2 {
 .lista-productos {
   padding-bottom: 90px;
 }
+
+.aviso-deuda-inline {
+  color: #c0392b;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 8px;
+}

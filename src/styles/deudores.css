@@ -1,0 +1,150 @@
+.deudores-total-general {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.lista-deudores {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tarjeta-deudor {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.tarjeta-deudor-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.tarjeta-deudor-header .nombre {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.tarjeta-deudor-header .telefono {
+  color: #666;
+  font-size: 13px;
+}
+
+.tarjeta-deudor-header .deuda-total {
+  margin-left: auto;
+  font-weight: bold;
+  color: #c0392b;
+  font-size: 16px;
+}
+
+.deudas-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fila-deuda {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.fila-deuda.vencida {
+  background: #fdecea;
+}
+
+.fila-deuda-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.fila-deuda-info .saldo {
+  font-weight: bold;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.fila-deuda-info .meta {
+  color: #666;
+}
+
+.badge-vencido {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.fila-deuda-controles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.fila-deuda-controles input[type="number"] {
+  width: 100px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.btn-secundario {
+  padding: 8px 12px;
+  background: #ccc;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-secundario:hover {
+  background: #b5b5b5;
+}
+
+.fila-deuda-controles .btn-guardar-fila {
+  margin-left: auto;
+  padding: 8px 16px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.fila-deuda-controles .btn-guardar-fila:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.fila-deuda-controles .btn-guardar-fila:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .tarjeta-deudor-header .deuda-total {
+    margin-left: 0;
+  }
+
+  .fila-deuda-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fila-deuda-controles input[type="number"] {
+    width: 100%;
+  }
+
+  .fila-deuda-controles .btn-guardar-fila {
+    margin-left: 0;
+  }
+}

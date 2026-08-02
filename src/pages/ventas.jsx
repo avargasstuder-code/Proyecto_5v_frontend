@@ -2,6 +2,19 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/ventas.css";
 
+// Formatea números como pesos chilenos: sin decimales, con punto de miles (ej: 10.000)
+const formatoCLP = (valor) => {
+  const numero = Math.round(Number(valor) || 0);
+  return numero.toLocaleString("es-CL", { maximumFractionDigits: 0 });
+};
+
+// Convierte "YYYY-MM-DD" a "DD-MM-AAAA" sin pasar por Date (evita líos de zona horaria)
+const formatoFechaCorta = (fechaISO) => {
+  if (!fechaISO) return "";
+  const [anio, mes, dia] = fechaISO.split("-");
+  return `${dia}-${mes}-${anio}`;
+};
+
 function Ventas({ setIsAuth }) {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
@@ -11,11 +24,10 @@ function Ventas({ setIsAuth }) {
   const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [metodoPago, setMetodoPago] = useState("");
-  const [diasCredito, setDiasCredito] = useState(0);
   const [paso, setPaso] = useState(1);
-
-  const metodosConDias = ["cheque", "credito"];
+  const [deudaCliente, setDeudaCliente] = useState([]);
+  const [mostrarAvisoDeuda, setMostrarAvisoDeuda] = useState(false);
+  const [cobrosSeleccionados, setCobrosSeleccionados] = useState([]);
 
   let token = null;
   try {
@@ -77,20 +89,59 @@ function Ventas({ setIsAuth }) {
     localStorage.removeItem("clienteVenta");
   }, [productosLista]);
 
+  // Si el producto ya está en el carrito, solo le suma 1 a la cantidad
+  // existente en vez de agregar una fila nueva y duplicada
+  // Cada vez que se elige un cliente distinto, chequeamos si tiene
+  // cheques o créditos pendientes de cobro
+  useEffect(() => {
+    if (!clienteSeleccionado) {
+      setDeudaCliente([]);
+      setCobrosSeleccionados([]);
+      return;
+    }
+
+    api.get(`/clientes/${clienteSeleccionado}/deuda`)
+      .then(res => setDeudaCliente(res.data.deudas || []))
+      .catch((error) => {
+        console.error(error);
+        setDeudaCliente([]);
+      });
+
+    setCobrosSeleccionados([]);
+  }, [clienteSeleccionado]);
+
+  const toggleCobro = (ventaId) => {
+    setCobrosSeleccionados(prev =>
+      prev.includes(ventaId) ? prev.filter(id => id !== ventaId) : [...prev, ventaId]
+    );
+  };
+
   const agregarProducto = (producto) => {
-    setCarrito(prev => [
-      ...prev,
-      {
-        producto_id: producto.id,
-        nombre: producto.nombre,
-        tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
-        cantidad: 1,
-        precio_carton: producto.precio_carton,
-        precio_medio: producto.precio_medio,
-        precio_unitario: producto.precio_unitario,
-        tipo_venta: producto.tipo_venta
+    setCarrito(prev => {
+      const indexExistente = prev.findIndex(item => item.producto_id === producto.id);
+
+      if (indexExistente !== -1) {
+        return prev.map((item, i) =>
+          i === indexExistente
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
       }
-    ]);
+
+      return [
+        ...prev,
+        {
+          producto_id: producto.id,
+          nombre: producto.nombre,
+          tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
+          cantidad: 1,
+          precio_carton: producto.precio_carton,
+          precio_medio: producto.precio_medio,
+          precio_unitario: producto.precio_unitario,
+          tipo_venta: producto.tipo_venta
+        }
+      ];
+    });
   };
 
   const calcularTotal = () => {
@@ -118,19 +169,35 @@ function Ventas({ setIsAuth }) {
     ));
   };
 
-  const vender = async () => {
+  const vender = () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
     if (!clienteSeleccionado) return alert("Debes seleccionar un cliente");
-    if (!metodoPago) return alert("Selecciona método de pago");
-    if (metodosConDias.includes(metodoPago) && diasCredito <= 0) {
-      return alert("Ingresa los días");
+
+    // Si el cliente tiene deuda pendiente, mostramos el aviso primero
+    // y esperamos confirmación antes de vender
+    if (deudaCliente.length > 0) {
+      setMostrarAvisoDeuda(true);
+      return;
     }
 
+    confirmarVentaFinal();
+  };
+
+  const confirmarVentaFinal = async () => {
+    setMostrarAvisoDeuda(false);
+
     try {
+      // Si el vendedor cobró alguna deuda pendiente en el momento
+      // (marcada con el checkbox del aviso), la cerramos primero
+      for (const ventaId of cobrosSeleccionados) {
+        const deuda = deudaCliente.find(d => d.id === ventaId);
+        if (deuda) {
+          await api.post(`/ventas/${ventaId}/abono`, { monto: deuda.saldo });
+        }
+      }
+
       await api.post("/ventas", {
         cliente_id: clienteSeleccionado,
-        metodo_pago: metodoPago,
-        dias_cheque: metodosConDias.includes(metodoPago) ? diasCredito : null,
         productos: carrito.map(item => ({
           producto_id: item.producto_id,
           tipo: item.tipo,
@@ -140,9 +207,9 @@ function Ventas({ setIsAuth }) {
 
       alert("Venta realizada");
       setCarrito([]);
-      setMetodoPago("");
-      setDiasCredito(0);
       setPaso(1);
+      setCobrosSeleccionados([]);
+      setDeudaCliente([]);
       cargarDatos();
     } catch (error) {
       console.error(error);
@@ -199,7 +266,7 @@ function Ventas({ setIsAuth }) {
 
         <div className="total-box">
           <span>Total</span>
-          <span className="total-monto">${calcularTotal()}</span>
+          <span className="total-monto">${formatoCLP(calcularTotal())}</span>
         </div>
 
         <div className="card-seccion">
@@ -209,26 +276,76 @@ function Ventas({ setIsAuth }) {
               <option value="">Seleccionar cliente</option>
               {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} {c.apellido} - {c.rut}</option>)}
             </select>
-          </div>
-        </div>
 
-        <div className="card-seccion">
-          <h2>Método de Pago</h2>
-          <div className="metodos">
-            {["efectivo", "transferencia", "cheque", "credito"].map(m => (
-              <button key={m} className={metodoPago === m ? "metodo activo" : "metodo"}
-                onClick={() => setMetodoPago(m)}>
-                {m.charAt(0).toUpperCase() + m.slice(1)}
-              </button>
-            ))}
+            {deudaCliente.length > 0 && (
+              <p className="aviso-deuda-inline">
+                ⚠️ Este cliente debe ${formatoCLP(deudaCliente.reduce((acc, d) => acc + Number(d.saldo), 0))}
+                {" "}({deudaCliente.length} pago{deudaCliente.length > 1 ? "s" : ""} pendiente{deudaCliente.length > 1 ? "s" : ""})
+              </p>
+            )}
           </div>
-          {metodosConDias.includes(metodoPago) && (
-            <input className="input" type="number" placeholder="Días"
-              value={diasCredito} onChange={(e) => setDiasCredito(Number(e.target.value))} />
-          )}
         </div>
 
         <button className="btn-vender" onClick={vender}>Confirmar venta</button>
+
+        {mostrarAvisoDeuda && (
+          <div className="modal" onClick={() => setMostrarAvisoDeuda(false)}>
+            <div className="boleta" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
+              <h3 style={{ marginTop: 0 }}>⚠️ Cliente con deuda pendiente</h3>
+
+              <p style={{ fontSize: 15, marginTop: -8 }}>
+                Total pendiente: <b>${formatoCLP(deudaCliente.reduce((acc, d) => acc + Number(d.saldo), 0))}</b>
+                {" "}({deudaCliente.length} pago{deudaCliente.length > 1 ? "s" : ""})
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+                {deudaCliente.map(d => (
+                  <label
+                    key={d.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 14,
+                      textAlign: "left",
+                      border: "1px solid #ddd",
+                      borderRadius: 8,
+                      padding: 10
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={cobrosSeleccionados.includes(d.id)}
+                      onChange={() => toggleCobro(d.id)}
+                    />
+                    <span>
+                      <b>{d.metodo_pago === "cheque" ? "Cheque" : "Crédito"}</b> · Saldo ${formatoCLP(d.saldo)}
+                      {d.monto_pagado > 0 && (
+                        <> (ya abonó ${formatoCLP(d.monto_pagado)} de ${formatoCLP(d.total)})</>
+                      )}
+                      <br />
+                      Vence: {formatoFechaCorta(d.vencimiento)}
+                      {d.vencido && <span style={{ color: "#c0392b" }}> · VENCIDO</span>}
+                      <br />
+                      <span style={{ fontSize: 12, color: "#666" }}>
+                        Marcá esta casilla si el cliente te paga esto ahora
+                      </span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button className="btn-imprimir" onClick={confirmarVentaFinal}>
+                  Continuar igual
+                </button>
+                <button className="btn-cerrar" onClick={() => setMostrarAvisoDeuda(false)}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -264,9 +381,9 @@ function Ventas({ setIsAuth }) {
             </div>
             <div className="precios">
               {p.tipo_venta === "cigarro" ? (
-                <><span>C: ${p.precio_carton}</span><span>M: ${p.precio_medio}</span></>
+                <><span>C: ${formatoCLP(p.precio_carton)}</span><span>M: ${formatoCLP(p.precio_medio)}</span></>
               ) : (
-                <span>${p.precio_unitario}</span>
+                <span>${formatoCLP(p.precio_unitario)}</span>
               )}
             </div>
             <div className="acciones-lista">

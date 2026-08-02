@@ -3,11 +3,60 @@ import { api } from "../api";
 import "../styles/historial.css";
 import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min.js";
 
+// Formatea números como pesos chilenos: sin decimales, con punto de miles (ej: 10.000)
+const formatoCLP = (valor) => {
+  const numero = Math.round(Number(valor) || 0);
+  return numero.toLocaleString("es-CL", { maximumFractionDigits: 0 });
+};
+
+// Formatea un RUT chileno a formato con puntos y guión (ej: 12.345.678-9)
+const formatoRUT = (rut) => {
+  if (!rut) return "";
+
+  const limpio = rut.replace(/\./g, "").replace(/-/g, "").trim();
+  const cuerpo = limpio.slice(0, -1);
+  const dv = limpio.slice(-1).toUpperCase();
+
+  const cuerpoConPuntos = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  return `${cuerpoConPuntos}-${dv}`;
+};
+
+// Muestra el método de pago, o "Pendiente" si aún no se ha definido
+const formatoPago = (venta) => {
+  if (!venta.metodo_pago) return "Pendiente";
+
+  if (venta.metodo_pago === "cheque") {
+    return `Cheque a ${venta.dias_cheque} días`;
+  }
+
+  return venta.metodo_pago.charAt(0).toUpperCase() + venta.metodo_pago.slice(1);
+};
+
+// Fuerza el formato día-mes-año, sin depender de la configuración regional del dispositivo
+const formatoFecha = (fecha) => {
+  return new Date(fecha).toLocaleString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
+
+// Tamaño de hoja oficio (Chile), en milímetros
+const OFICIO_ANCHO_MM = 216;
+const OFICIO_ALTO_MM = 330;
+const OFICIO_MARGEN_MM = 15;
+
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
   const [detalle, setDetalle] = useState(null);
   const [mostrarBoleta, setMostrarBoleta] = useState(false);
-  
+  const [mostrarSelectorFormato, setMostrarSelectorFormato] = useState(false);
+  const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+
 
   useEffect(() => {
     api.get("/historial")
@@ -20,7 +69,28 @@ export default function Historial() {
       )
       .catch(console.error);
   }, []);
-  
+
+  // FILTRO: por nombre de cliente, RUT o fecha
+  const ventasFiltradas = ventas.filter(v => {
+    const termino = busqueda.toLowerCase().trim();
+    if (!termino) return true;
+
+    const nombre = (v.cliente || "").toLowerCase();
+
+    const rutLimpio = (v.rut || "").toLowerCase().replace(/\./g, "").replace(/-/g, "");
+    const terminoLimpio = termino.replace(/\./g, "").replace(/-/g, "");
+
+    const fechaCorta = new Date(v.fecha).toLocaleDateString("es-CL"); // ej: 20-07-2026
+    const fechaISO = v.fecha.slice(0, 10); // ej: 2026-07-20
+
+    return (
+      nombre.includes(termino) ||
+      (rutLimpio && rutLimpio.includes(terminoLimpio)) ||
+      fechaCorta.includes(termino) ||
+      fechaISO.includes(termino)
+    );
+  });
+
 
   const verDetalle = async (id) => {
     try {
@@ -63,13 +133,10 @@ export default function Historial() {
             <h2>Guía de venta</h2>
 
             <p>Cliente: ${detalle.venta.cliente}</p>
-            <p>Rut: ${detalle.venta.rut}</p>
+            <p>Rut: ${formatoRUT(detalle.venta.rut)}</p>
+            <p>Ciudad: ${detalle.venta.ciudad || ""}</p>
             <p>Vendedor: ${detalle.venta.usuario}</p>
-            <p>Fecha: ${new Date(detalle.venta.fecha).toLocaleString()}</p>
-            <p>Pago: ${detalle.venta.metodo_pago === "cheque"
-                    ? `Cheque a ${detalle.venta.dias_cheque} días`
-                    : detalle.venta.metodo_pago}
-                </p>
+            <p>Fecha: ${formatoFecha(detalle.venta.fecha)}</p>
             <hr/>
 
             ${detalle.productos.map(p => `
@@ -77,13 +144,13 @@ export default function Historial() {
                 <span>${p.nombre}</span>
                 <span>${p.tipo_unidad}</span>
                 <span>x${p.cantidad}</span>
-                <span>$${p.precio_unitario * p.cantidad}</span>
+                <span>$${formatoCLP(p.precio_unitario * p.cantidad)}</span>
               </div>
             `).join("")}
 
             <hr/>
 
-            <h3>Total: $${detalle.venta.total}</h3>
+            <h3>Total: $${formatoCLP(detalle.venta.total)}</h3>
 
             <p style="text-align:center;">Gracias por su compra</p>
 
@@ -100,44 +167,100 @@ export default function Historial() {
       ventana.document.close();
     };
 
-
-  const descargarBoleta = () => {
+  // Prepara un clon "limpio" de la boleta (sin botones) listo para capturar
+  const clonarBoletaParaPdf = () => {
     const original = document.querySelector(".boleta");
+    if (!original) return null;
 
-    if (!original) {
-      alert("No se encontró la boleta");
-      return;
-    }
-
-    // Clonamos el nodo, quitamos los botones y le aplicamos el
-    // formato angosto de impresora térmica (58mm) antes de capturar
     const clone = original.cloneNode(true);
     const acciones = clone.querySelector(".acciones-boleta");
     if (acciones) acciones.remove();
+
+    return clone;
+  };
+
+  // FORMATO TÉRMICO: página del ancho exacto de la impresora (58mm),
+  // con el alto ajustado al contenido, como un ticket
+  const generarPdfTermico = (clone, wrapper) => {
     clone.classList.add("boleta-58mm");
 
     // 58mm de ancho físico, convertido a píxeles a 96dpi (~219px)
     const anchoPx = Math.round((58 / 25.4) * 96);
-
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "fixed";
-    wrapper.style.top = "0";
-    wrapper.style.left = "-9999px";
     clone.style.width = `${anchoPx}px`;
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
 
     // Medimos el alto real ya angostada, para no dejar espacio en blanco
     // ni cortar contenido (el ticket crece o se achica según los productos)
     const altoPx = clone.scrollHeight;
     const altoMM = (altoPx / 96) * 25.4 + 5; // +5mm de margen de cola
 
-    const opt = {
+    return {
       margin: 0,
-      filename: `guia-venta-${detalle?.venta?.id || "sin-id"}.pdf`,
-      html2canvas: { scale: 3 },
+      filename: `guia-venta-${detalle?.venta?.id || "sin-id"}-termica.pdf`,
+      html2canvas: {
+        scale: 3,
+        // Forzamos el alto/ancho de captura al del contenido real,
+        // en vez de dejar que use el alto de la pantalla del dispositivo
+        // (esto era lo que cortaba la guía en celulares con pantalla chica)
+        width: anchoPx,
+        height: altoPx,
+        windowWidth: anchoPx,
+        windowHeight: altoPx,
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF: { unit: "mm", format: [58, altoMM], orientation: "portrait" }
     };
+  };
+
+  // FORMATO OFICIO: página de tamaño fijo (216 x 330mm), con margen real
+  // de hoja. Si el contenido no entra en una página, se pagina solo.
+  const generarPdfOficio = (clone) => {
+    clone.classList.add("boleta-oficio");
+
+    const anchoContenidoMM = OFICIO_ANCHO_MM - OFICIO_MARGEN_MM * 2;
+    const anchoPx = Math.round((anchoContenidoMM / 25.4) * 96);
+
+    clone.style.width = `${anchoPx}px`;
+    // Tamaño de letra un poco más grande para que se vea bien en hoja
+    // completa (en la térmica el CSS .boleta-58mm ya achica la letra)
+    clone.style.fontSize = "16px";
+
+    return {
+      margin: OFICIO_MARGEN_MM,
+      filename: `guia-venta-${detalle?.venta?.id || "sin-id"}-oficio.pdf`,
+      html2canvas: {
+        scale: 3,
+        width: anchoPx,
+        windowWidth: anchoPx,
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF: { unit: "mm", format: [OFICIO_ANCHO_MM, OFICIO_ALTO_MM], orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+    };
+  };
+
+  const descargarBoleta = (formato) => {
+    setMostrarSelectorFormato(false);
+
+    const clone = clonarBoletaParaPdf();
+    if (!clone) {
+      alert("No se encontró la boleta");
+      return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "fixed";
+    wrapper.style.top = "0";
+    wrapper.style.left = "-9999px";
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    const opt = formato === "oficio"
+      ? generarPdfOficio(clone)
+      : generarPdfTermico(clone, wrapper);
+
+    setGenerandoPdf(true);
 
     html2pdf()
       .set(opt)
@@ -148,12 +271,21 @@ export default function Historial() {
         console.error(error);
         alert("Error al generar el PDF");
         document.body.removeChild(wrapper);
-      });
+      })
+      .finally(() => setGenerandoPdf(false));
   };
 
   return (
     <div className="container">
       <h1>Historial de Ventas</h1>
+
+      <input
+        type="text"
+        placeholder="🔍 Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
+        className="input-buscador"
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+      />
 
       <table>
         <thead>
@@ -168,17 +300,13 @@ export default function Historial() {
         </thead>
 
         <tbody>
-          {ventas.map(v => (
+          {ventasFiltradas.map(v => (
             <tr key={v.id}>
               <td>{v.id}</td>
               <td>{v.cliente}</td>
               <td>{v.usuario}</td>
-              <td>${v.total}</td>
-              <td>
-                 {v.metodo_pago === "cheque"
-                   ? `Cheque (${v.dias_cheque} días)`
-                   : v.metodo_pago}
-                </td>
+              <td>${formatoCLP(v.total)}</td>
+              <td>{formatoPago(v)}</td>
               <td>
                 <button onClick={() => verDetalle(v.id)}>
                   Ver
@@ -195,14 +323,10 @@ export default function Historial() {
               <h2>Guía de venta</h2>
 
               <p><b>Cliente:</b> {detalle.venta.cliente}</p>
-              <p><b>Rut:</b> {detalle.venta.rut}</p>
+              <p><b>Rut:</b> {formatoRUT(detalle.venta.rut)}</p>
+              <p><b>Ciudad:</b> {detalle.venta.ciudad}</p>
               <p><b>Vendedor:</b> {detalle.venta.usuario}</p>
-              <p><b>Fecha:</b> {new Date(detalle.venta.fecha).toLocaleString()}</p>
-              <p><b>Pago:</b> 
-                  {detalle.venta.metodo_pago === "cheque"
-                    ? `Cheque a ${detalle.venta.dias_cheque} días`
-                    : detalle.venta.metodo_pago}
-                </p>
+              <p><b>Fecha:</b> {formatoFecha(detalle.venta.fecha)}</p>
 
               <hr />
 
@@ -211,24 +335,74 @@ export default function Historial() {
                   <strong>{p.nombre}</strong>
                   <span>Tipo: {p.tipo_unidad}</span>
                   <span>Cantidad: {p.cantidad}</span>
-                  <span>Subtotal: ${p.precio_unitario * p.cantidad}</span>
+                  <span>Subtotal: ${formatoCLP(p.precio_unitario * p.cantidad)}</span>
                 </div>
                 ))}
 
               <hr />
           
-              <h3>Total: ${detalle.venta.total}</h3>
+              <h3>Total: ${formatoCLP(detalle.venta.total)}</h3>
           
               <div className="acciones-boleta">
                   <button className="btn-cerrar" onClick={() => setMostrarBoleta(false)}>
                     Cerrar
                   </button>
-                  <button className="btn-imprimir" onClick={descargarBoleta}>
+                  <button
+                    className="btn-imprimir"
+                    onClick={() => setMostrarSelectorFormato(true)}
+                  >
                     Descargar PDF
                   </button>
                 </div>
             </div>
           </div>
         )}
+
+      {mostrarSelectorFormato && (
+        <div
+          className="modal"
+          style={{ zIndex: 1000 }}
+          onClick={() => setMostrarSelectorFormato(false)}
+        >
+          <div
+            className="boleta"
+            style={{ maxWidth: 320, textAlign: "center" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginTop: 0 }}>¿En qué formato?</h3>
+            <p style={{ fontSize: 13, color: "#555" }}>
+              Elegí el formato del PDF antes de descargarlo
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
+              <button
+                className="btn-imprimir"
+                disabled={generandoPdf}
+                onClick={() => descargarBoleta("termica")}
+              >
+                Térmica (58mm)
+              </button>
+              <button
+                className="btn-imprimir"
+                disabled={generandoPdf}
+                onClick={() => descargarBoleta("oficio")}
+              >
+                Oficio
+              </button>
+              <button
+                className="btn-cerrar"
+                disabled={generandoPdf}
+                onClick={() => setMostrarSelectorFormato(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+
+            {generandoPdf && (
+              <p style={{ fontSize: 13, marginTop: 12 }}>Generando PDF...</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )}

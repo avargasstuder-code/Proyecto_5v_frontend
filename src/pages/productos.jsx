@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import "../styles/productos.css";
 
+// Formatea números como pesos chilenos: sin decimales, con punto de miles (ej: 10.000)
+const formatoCLP = (valor) => {
+  const numero = Math.round(Number(valor) || 0);
+  return numero.toLocaleString("es-CL", { maximumFractionDigits: 0 });
+};
+
 export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -217,11 +223,11 @@ export default function Productos() {
             <div className="precios">
               {p.tipo_venta === "cigarro" ? (
                 <>
-                  <span>C: ${p.precio_carton}</span>
-                  <span>M: ${p.precio_medio}</span>
+                  <span>C: ${formatoCLP(p.precio_carton)}</span>
+                  <span>M: ${formatoCLP(p.precio_medio)}</span>
                 </>
               ) : (
-                <span>${p.precio_unitario}</span>
+                <span>${formatoCLP(p.precio_unitario)}</span>
               )}
             </div>
             
