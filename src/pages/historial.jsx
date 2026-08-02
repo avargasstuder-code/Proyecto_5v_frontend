@@ -49,6 +49,20 @@ const OFICIO_ANCHO_MM = 216;
 const OFICIO_ALTO_MM = 330;
 const OFICIO_MARGEN_MM = 15;
 
+// Algunos celulares (sobre todo gama media/baja) no soportan canvas
+// muy altos con escala alta: el navegador simplemente deja en blanco
+// todo lo que sobra del límite. Si el contenido es muy largo, bajamos
+// la escala automáticamente para no pasarnos de ese límite, sin perder
+// nitidez en las boletas cortas.
+const ALTO_MAXIMO_CANVAS_PX = 4000;
+
+function calcularEscalaSegura(altoContenidoPx, escalaDeseada = 3) {
+  const altoConEscala = altoContenidoPx * escalaDeseada;
+  if (altoConEscala <= ALTO_MAXIMO_CANVAS_PX) return escalaDeseada;
+  const escalaAjustada = ALTO_MAXIMO_CANVAS_PX / altoContenidoPx;
+  return Math.max(escalaAjustada, 1.5); // nunca bajar de 1.5, para que siga siendo legible
+}
+
 export default function Historial() {
   const [ventas, setVentas] = useState([]);
   const [detalle, setDetalle] = useState(null);
@@ -137,6 +151,7 @@ export default function Historial() {
             <p>Ciudad: ${detalle.venta.ciudad || ""}</p>
             <p>Vendedor: ${detalle.venta.usuario}</p>
             <p>Fecha: ${formatoFecha(detalle.venta.fecha)}</p>
+            <p>Pago: ${formatoPago(detalle.venta)}</p>
             <hr/>
 
             ${detalle.productos.map(p => `
@@ -192,12 +207,13 @@ export default function Historial() {
     // ni cortar contenido (el ticket crece o se achica según los productos)
     const altoPx = clone.scrollHeight;
     const altoMM = (altoPx / 96) * 25.4 + 5; // +5mm de margen de cola
+    const escala = calcularEscalaSegura(altoPx);
 
     return {
       margin: 0,
       filename: `guia-venta-${detalle?.venta?.id || "sin-id"}-termica.pdf`,
       html2canvas: {
-        scale: 3,
+        scale: escala,
         // Forzamos el alto/ancho de captura al del contenido real,
         // en vez de dejar que use el alto de la pantalla del dispositivo
         // (esto era lo que cortaba la guía en celulares con pantalla chica)
@@ -225,13 +241,22 @@ export default function Historial() {
     // completa (en la térmica el CSS .boleta-58mm ya achica la letra)
     clone.style.fontSize = "16px";
 
+    // Medimos el alto real del contenido YA con el ancho final aplicado.
+    // Sin esto, html2canvas solo capturaba lo que entraba en la pantalla
+    // visible del dispositivo, y el resto de la boleta quedaba cortado
+    // (pasaba en compu y en celular con ventas largas).
+    const altoPx = clone.scrollHeight;
+    const escala = calcularEscalaSegura(altoPx);
+
     return {
       margin: OFICIO_MARGEN_MM,
       filename: `guia-venta-${detalle?.venta?.id || "sin-id"}-oficio.pdf`,
       html2canvas: {
-        scale: 3,
+        scale: escala,
         width: anchoPx,
+        height: altoPx,
         windowWidth: anchoPx,
+        windowHeight: altoPx,
         scrollX: 0,
         scrollY: 0
       },
@@ -281,7 +306,7 @@ export default function Historial() {
 
       <input
         type="text"
-        placeholder="🔍 Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
+        placeholder="Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
         className="input-buscador"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
@@ -327,6 +352,7 @@ export default function Historial() {
               <p><b>Ciudad:</b> {detalle.venta.ciudad}</p>
               <p><b>Vendedor:</b> {detalle.venta.usuario}</p>
               <p><b>Fecha:</b> {formatoFecha(detalle.venta.fecha)}</p>
+              <p><b>Pago:</b> {formatoPago(detalle.venta)}</p>
 
               <hr />
 
@@ -380,7 +406,7 @@ export default function Historial() {
                 disabled={generandoPdf}
                 onClick={() => descargarBoleta("termica")}
               >
-                Térmica (58mm)
+                Térmica (impresora)
               </button>
               <button
                 className="btn-imprimir"
