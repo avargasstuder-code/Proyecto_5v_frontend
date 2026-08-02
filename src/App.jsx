@@ -9,7 +9,7 @@ import Historial from "./pages/historial";
 import Perfil from "./pages/perfil";
 import CierreDia from "./pages/cierre_dia";
 import Deudores from "./pages/deudores";
-import RutaProtegida from "./components/RutaProtegida";
+import RutaProtegida from "./components/rutaProtegida";
 import { obtenerRol, rutaInicioPorRol } from "./utils/rol";
 
 function App() {
