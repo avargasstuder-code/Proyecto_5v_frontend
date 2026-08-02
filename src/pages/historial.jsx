@@ -265,7 +265,7 @@ export default function Historial() {
     };
   };
 
-  const descargarBoleta = (formato) => {
+  const descargarBoleta = async (formato) => {
     setMostrarSelectorFormato(false);
 
     const clone = clonarBoletaParaPdf();
@@ -287,17 +287,25 @@ export default function Historial() {
 
     setGenerandoPdf(true);
 
-    html2pdf()
-      .set(opt)
-      .from(clone)
-      .save()
-      .then(() => document.body.removeChild(wrapper))
-      .catch((error) => {
-        console.error(error);
-        alert("Error al generar el PDF");
-        document.body.removeChild(wrapper);
-      })
-      .finally(() => setGenerandoPdf(false));
+    try {
+      // En celulares (sobre todo Android) a veces la captura arranca
+      // antes de que el navegador termine de acomodar fuentes y
+      // diseño, lo que corta la boleta de forma inconsistente.
+      // Esperamos a que las fuentes terminen de cargar, más un
+      // pequeño respiro extra, antes de capturar.
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      await html2pdf().set(opt).from(clone).save();
+    } catch (error) {
+      console.error(error);
+      alert("Error al generar el PDF");
+    } finally {
+      document.body.removeChild(wrapper);
+      setGenerandoPdf(false);
+    }
   };
 
   return (
@@ -306,7 +314,7 @@ export default function Historial() {
 
       <input
         type="text"
-        placeholder="Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
+        placeholder="🔍 Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
         className="input-buscador"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
@@ -406,14 +414,14 @@ export default function Historial() {
                 disabled={generandoPdf}
                 onClick={() => descargarBoleta("termica")}
               >
-                Térmica (impresora)
+                🧾 Térmica (58mm)
               </button>
               <button
                 className="btn-imprimir"
                 disabled={generandoPdf}
                 onClick={() => descargarBoleta("oficio")}
               >
-                Oficio
+                📄 Oficio (para la contadora)
               </button>
               <button
                 className="btn-cerrar"
