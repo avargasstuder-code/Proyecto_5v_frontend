@@ -24,6 +24,9 @@ export default function Navbar({ setIsAuth }) {
         {esAdmin && (
           <Link to="/productos" onClick={() => setMenuAbierto(false)}>Productos</Link>
         )}
+        {esAdmin && (
+          <Link to="/compras" onClick={() => setMenuAbierto(false)}>Compras</Link>
+        )}
         {!esAdmin && (
           <Link to="/clientes" onClick={() => setMenuAbierto(false)}>Clientes</Link>
         )}

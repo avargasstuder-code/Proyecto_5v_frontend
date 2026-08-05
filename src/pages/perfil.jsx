@@ -5,7 +5,7 @@ import "../styles/perfil.css";
 export default function Perfil() {
 
   const [usuarios, setUsuarios] = useState([]);
-  const [passwords, setPasswords] = useState({ actual: "", nueva: "" });
+  const [passwords, setPasswords] = useState({ actual: "", nueva: "", confirmarNueva: "" });
   const [nuevoUsuario, setNuevoUsuario] = useState({
     nombre: "", email: "", password: "", rol: "vendedor"
   });
@@ -34,9 +34,12 @@ export default function Perfil() {
 
   const cambiarPassword = async () => {
     try {
-      await api.put("/auth/cambiar-password", passwords);
+      await api.put("/auth/cambiar-password", {
+        actual: passwords.actual,
+        nueva: passwords.nueva
+      });
       alert("Contraseña actualizada");
-      setPasswords({ actual: "", nueva: "" });
+      setPasswords({ actual: "", nueva: "", confirmarNueva: "" });
       setMostrarConfirmacion(false);
     } catch (error) {
       alert(error.response?.data?.error || "Error");
@@ -84,10 +87,19 @@ export default function Perfil() {
           value={passwords.nueva}
           onChange={(e) => setPasswords({ ...passwords, nueva: e.target.value })}
         />
+        <input
+          type="password"
+          placeholder="Repetir nueva contraseña"
+          value={passwords.confirmarNueva}
+          onChange={(e) => setPasswords({ ...passwords, confirmarNueva: e.target.value })}
+        />
         <button
           onClick={() => {
-            if (!passwords.actual || !passwords.nueva) {
-              return alert("Completa ambas contraseñas");
+            if (!passwords.actual || !passwords.nueva || !passwords.confirmarNueva) {
+              return alert("Completa los 3 campos");
+            }
+            if (passwords.nueva !== passwords.confirmarNueva) {
+              return alert("La nueva contraseña no coincide con la confirmación");
             }
             setMostrarConfirmacion(true);
           }}

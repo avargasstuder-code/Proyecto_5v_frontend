@@ -442,3 +442,55 @@ h1, h2 {
   font-weight: bold;
   margin-top: 8px;
 }
+
+/* Botones deshabilitados mientras se procesa una venta:
+   se ven apagados y no dan sensación de que se puede volver a tocar */
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Botones deshabilitados mientras se procesa una venta:
+   se ven apagados y no dan sensación de que se puede volver a tocar */
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+ 
+/* Precio editable por línea en el carrito (venta con precio especial) */
+.precio-manual-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+ 
+.precio-manual-box label {
+  font-size: 10px;
+  color: #666;
+}
+ 
+.precio-manual-box input {
+  width: 90px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+ 
+.precio-manual-box input.precio-editado {
+  border-color: #2e7d32;
+  background: #f1f8f1;
+  font-weight: bold;
+  color: #1b5e20;
+}
+ 
+.btn-restablecer-precio {
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}

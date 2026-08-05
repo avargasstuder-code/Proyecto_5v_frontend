@@ -124,6 +124,14 @@ export default function Clientes() {
     return dv === dvFinal;
   };
 
+  // VALIDAR TELÉFONO (9 + 8 dígitos, ej: 912345678). Vacío se permite,
+  // ya que el teléfono no es obligatorio.
+  const validarTelefono = (telefono) => {
+    if (!telefono || !telefono.trim()) return true;
+    const limpio = telefono.replace(/[\s-]/g, "");
+    return /^9\d{8}$/.test(limpio);
+  };
+
   // CREAR CLIENTE
   const crearCliente = async () => {
 
@@ -133,6 +141,10 @@ export default function Clientes() {
 
     if (!validarRUT(nuevoCliente.rut)) {
       return alert("RUT inválido");
+    }
+
+    if (!validarTelefono(nuevoCliente.telefono)) {
+      return alert("Teléfono inválido. Formato esperado: 912345678 (9 dígitos, empieza con 9)");
     }
 
     try {
@@ -192,6 +204,10 @@ export default function Clientes() {
 
     if (!validarRUT(clienteEditar.rut)) {
       return alert("RUT inválido");
+    }
+
+    if (!validarTelefono(clienteEditar.telefono)) {
+      return alert("Teléfono inválido. Formato esperado: 912345678 (9 dígitos, empieza con 9)");
     }
 
     try {

@@ -47,6 +47,7 @@
 
 .selector-fecha {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -56,6 +57,11 @@
   border-radius: 8px;
   font-size: 14px;
   background: white;
+  color: #222;
+  -webkit-appearance: menulist;
+  appearance: menulist;
+  min-width: 90px;
+  flex: 1 1 auto;
   cursor: pointer;
 }
 
@@ -63,6 +69,7 @@
   .selector-fecha select {
     padding: 8px 6px;
     font-size: 13px;
+    min-width: 78px;
   }
 }
 
@@ -229,7 +236,7 @@
 
 .fila-resumen.fila-total .metodo,
 .fila-resumen.fila-total .monto {
-  color: rgb(4, 4, 4);
+  color: rgba(6, 6, 6);
 }
 
 /* ── RESPONSIVE CELULAR ── */

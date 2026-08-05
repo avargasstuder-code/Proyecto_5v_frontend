@@ -9,6 +9,7 @@ import Historial from "./pages/historial";
 import Perfil from "./pages/perfil";
 import CierreDia from "./pages/cierre_dia";
 import Deudores from "./pages/deudores";
+import Compras from "./pages/compras";
 import RutaProtegida from "./components/rutaProtegida";
 import { obtenerRol, rutaInicioPorRol } from "./utils/rol";
 
@@ -42,6 +43,10 @@ function App() {
 
         <Route path="/productos" element={
           <RutaProtegida rolesPermitidos={["admin"]}><Productos /></RutaProtegida>
+        } />
+
+        <Route path="/compras" element={
+          <RutaProtegida rolesPermitidos={["admin"]}><Compras /></RutaProtegida>
         } />
 
         {/* Accesibles para cualquier rol logueado */}

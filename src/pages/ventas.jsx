@@ -28,6 +28,7 @@ function Ventas({ setIsAuth }) {
   const [deudaCliente, setDeudaCliente] = useState([]);
   const [mostrarAvisoDeuda, setMostrarAvisoDeuda] = useState(false);
   const [cobrosSeleccionados, setCobrosSeleccionados] = useState([]);
+  const [enviandoVenta, setEnviandoVenta] = useState(false);
 
   let token = null;
   try {
@@ -72,15 +73,19 @@ function Ventas({ setIsAuth }) {
       const carritoFormateado = prods.map(p => {
         const productoReal = productosLista.find(x => x.id === p.id);
         if (!productoReal) return null;
+        const tipo = productoReal.tipo_venta === "unitario" ? "unidad" : (p.tipo || "carton");
         return {
           producto_id: productoReal.id,
           nombre: productoReal.nombre,
-          tipo: productoReal.tipo_venta === "unitario" ? "unidad" : (p.tipo || "carton"),
+          tipo,
           cantidad: p.cantidad,
           tipo_venta: productoReal.tipo_venta,
           precio_carton: productoReal.precio_carton,
           precio_medio: productoReal.precio_medio,
-          precio_unitario: productoReal.precio_unitario
+          precio_unitario: productoReal.precio_unitario,
+          precioManual: productoReal.tipo_venta === "unitario"
+            ? Number(productoReal.precio_unitario) || 0
+            : Number(tipo === "carton" ? productoReal.precio_carton : productoReal.precio_medio) || 0
         };
       }).filter(Boolean);
       setCarrito(carritoFormateado);
@@ -89,8 +94,6 @@ function Ventas({ setIsAuth }) {
     localStorage.removeItem("clienteVenta");
   }, [productosLista]);
 
-  // Si el producto ya está en el carrito, solo le suma 1 a la cantidad
-  // existente en vez de agregar una fila nueva y duplicada
   // Cada vez que se elige un cliente distinto, chequeamos si tiene
   // cheques o créditos pendientes de cobro
   useEffect(() => {
@@ -116,6 +119,14 @@ function Ventas({ setIsAuth }) {
     );
   };
 
+  // Precio de catálogo para un ítem, según su tipo (carton/medio/unitario)
+  const precioCatalogo = (item, tipo = item.tipo) => {
+    if (item.tipo_venta === "unitario") return Number(item.precio_unitario) || 0;
+    return tipo === "carton" ? Number(item.precio_carton) || 0 : Number(item.precio_medio) || 0;
+  };
+
+  // Si el producto ya está en el carrito, solo le suma 1 a la cantidad
+  // existente en vez de agregar una fila nueva y duplicada
   const agregarProducto = (producto) => {
     setCarrito(prev => {
       const indexExistente = prev.findIndex(item => item.producto_id === producto.id);
@@ -128,29 +139,32 @@ function Ventas({ setIsAuth }) {
         );
       }
 
+      const tipoInicial = producto.tipo_venta === "unitario" ? "unidad" : "carton";
+
       return [
         ...prev,
         {
           producto_id: producto.id,
           nombre: producto.nombre,
-          tipo: producto.tipo_venta === "unitario" ? "unidad" : "carton",
+          tipo: tipoInicial,
           cantidad: 1,
           precio_carton: producto.precio_carton,
           precio_medio: producto.precio_medio,
           precio_unitario: producto.precio_unitario,
-          tipo_venta: producto.tipo_venta
+          tipo_venta: producto.tipo_venta,
+          // Precio que se va a cobrar en esta venta puntual. Arranca
+          // igual al de catálogo, pero se puede editar sin que eso
+          // afecte el precio del producto en el catálogo.
+          precioManual: producto.tipo_venta === "unitario"
+            ? Number(producto.precio_unitario) || 0
+            : Number(producto.precio_carton) || 0
         }
       ];
     });
   };
 
   const calcularTotal = () => {
-    return carrito.reduce((acc, item) => {
-      const precio = item.tipo_venta === "unitario"
-        ? item.precio_unitario
-        : item.tipo === "carton" ? item.precio_carton : item.precio_medio;
-      return acc + precio * item.cantidad;
-    }, 0);
+    return carrito.reduce((acc, item) => acc + item.precioManual * item.cantidad, 0);
   };
 
   const eliminarProducto = (index) => {
@@ -159,7 +173,9 @@ function Ventas({ setIsAuth }) {
 
   const cambiarTipo = (i, valor) => {
     setCarrito(prev => prev.map((item, idx) =>
-      idx === i ? { ...item, tipo: valor } : item
+      idx === i
+        ? { ...item, tipo: valor, precioManual: precioCatalogo(item, valor) }
+        : item
     ));
   };
 
@@ -169,7 +185,22 @@ function Ventas({ setIsAuth }) {
     ));
   };
 
+  const cambiarPrecioManual = (i, valor) => {
+    setCarrito(prev => prev.map((item, idx) =>
+      idx === i ? { ...item, precioManual: Number(valor) || 0 } : item
+    ));
+  };
+
+  const restablecerPrecio = (i) => {
+    setCarrito(prev => prev.map((item, idx) =>
+      idx === i ? { ...item, precioManual: precioCatalogo(item) } : item
+    ));
+  };
+
   const vender = () => {
+    // Si ya se está procesando una venta, ignoramos clics de más
+    if (enviandoVenta) return;
+
     if (carrito.length === 0) return alert("El carrito está vacío");
     if (!clienteSeleccionado) return alert("Debes seleccionar un cliente");
 
@@ -184,6 +215,11 @@ function Ventas({ setIsAuth }) {
   };
 
   const confirmarVentaFinal = async () => {
+    // Protección extra por si se llega a llamar dos veces casi
+    // simultáneo (ej: doble tap en el botón "Continuar igual")
+    if (enviandoVenta) return;
+
+    setEnviandoVenta(true);
     setMostrarAvisoDeuda(false);
 
     try {
@@ -201,7 +237,8 @@ function Ventas({ setIsAuth }) {
         productos: carrito.map(item => ({
           producto_id: item.producto_id,
           tipo: item.tipo,
-          cantidad: item.cantidad
+          cantidad: item.cantidad,
+          precio: item.precioManual
         }))
       });
 
@@ -214,6 +251,8 @@ function Ventas({ setIsAuth }) {
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.error || "Error al vender");
+    } finally {
+      setEnviandoVenta(false);
     }
   };
 
@@ -240,28 +279,56 @@ function Ventas({ setIsAuth }) {
 
         <div className="carrito-lista">
           {carrito.length === 0 && <p>No hay productos en el carrito.</p>}
-          {carrito.map((item, i) => (
-            <div key={i} className="item-carrito">
-              <div className="item-info">
-                <span className="item-nombre">{item.nombre}</span>
-                {item.tipo_venta !== "unitario" && (
-                  <select value={item.tipo} onChange={(e) => cambiarTipo(i, e.target.value)}>
-                    <option value="carton">Cartón</option>
-                    <option value="medio">Medio</option>
-                  </select>
-                )}
+          {carrito.map((item, i) => {
+            const precioDeCatalogo = precioCatalogo(item);
+            const tienePrecioEspecial = item.precioManual !== precioDeCatalogo;
+
+            return (
+              <div key={i} className="item-carrito">
+                <div className="item-info">
+                  <span className="item-nombre">{item.nombre}</span>
+                  {item.tipo_venta !== "unitario" && (
+                    <select value={item.tipo} onChange={(e) => cambiarTipo(i, e.target.value)}>
+                      <option value="carton">Cartón</option>
+                      <option value="medio">Medio</option>
+                    </select>
+                  )}
+                </div>
+                <div className="item-controles">
+                  <div className="precio-manual-box">
+                    <label>Cantidad</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.cantidad}
+                      onChange={(e) => cambiarCantidad(i, e.target.value)}
+                    />
+                  </div>
+                  <div className="precio-manual-box">
+                    <label>Precio unit.</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={item.precioManual}
+                      onChange={(e) => cambiarPrecioManual(i, e.target.value)}
+                      className={tienePrecioEspecial ? "precio-editado" : ""}
+                    />
+                    {tienePrecioEspecial && (
+                      <button
+                        type="button"
+                        className="btn-restablecer-precio"
+                        onClick={() => restablecerPrecio(i)}
+                        title={`Precio de catálogo: $${formatoCLP(precioDeCatalogo)}`}
+                      >
+                        ↺ catálogo
+                      </button>
+                    )}
+                  </div>
+                  <button className="btn-eliminar" onClick={() => eliminarProducto(i)}>❌</button>
+                </div>
               </div>
-              <div className="item-controles">
-                <input
-                  type="number"
-                  min="1"
-                  value={item.cantidad}
-                  onChange={(e) => cambiarCantidad(i, e.target.value)}
-                />
-                <button className="btn-eliminar" onClick={() => eliminarProducto(i)}>❌</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="total-box">
@@ -286,10 +353,12 @@ function Ventas({ setIsAuth }) {
           </div>
         </div>
 
-        <button className="btn-vender" onClick={vender}>Confirmar venta</button>
+        <button className="btn-vender" onClick={vender} disabled={enviandoVenta}>
+          {enviandoVenta ? "Confirmando venta..." : "Confirmar venta"}
+        </button>
 
         {mostrarAvisoDeuda && (
-          <div className="modal" onClick={() => setMostrarAvisoDeuda(false)}>
+          <div className="modal" onClick={() => !enviandoVenta && setMostrarAvisoDeuda(false)}>
             <div className="boleta" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
               <h3 style={{ marginTop: 0 }}>⚠️ Cliente con deuda pendiente</h3>
 
@@ -317,6 +386,7 @@ function Ventas({ setIsAuth }) {
                       type="checkbox"
                       checked={cobrosSeleccionados.includes(d.id)}
                       onChange={() => toggleCobro(d.id)}
+                      disabled={enviandoVenta}
                     />
                     <span>
                       <b>{d.metodo_pago === "cheque" ? "Cheque" : "Crédito"}</b> · Saldo ${formatoCLP(d.saldo)}
@@ -336,10 +406,14 @@ function Ventas({ setIsAuth }) {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <button className="btn-imprimir" onClick={confirmarVentaFinal}>
-                  Continuar igual
+                <button className="btn-imprimir" onClick={confirmarVentaFinal} disabled={enviandoVenta}>
+                  {enviandoVenta ? "Confirmando..." : "Continuar igual"}
                 </button>
-                <button className="btn-cerrar" onClick={() => setMostrarAvisoDeuda(false)}>
+                <button
+                  className="btn-cerrar"
+                  onClick={() => setMostrarAvisoDeuda(false)}
+                  disabled={enviandoVenta}
+                >
                   Cancelar
                 </button>
               </div>
