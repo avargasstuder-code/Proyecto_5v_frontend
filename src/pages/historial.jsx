@@ -102,6 +102,19 @@ export default function Historial() {
     }
   };
 
+    // Escapa caracteres especiales de HTML antes de insertarlos en el
+    // documento de impresión (evita que un nombre con < > & etc. rompa
+    // el HTML o, en el peor caso, ejecute código dentro de esa ventana)
+    const escaparHtml = (valor) => {
+      if (valor === null || valor === undefined) return "";
+      return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    };
+
     const imprimirBoleta = () => {
       const contenido = `
         <html>
@@ -126,18 +139,18 @@ export default function Historial() {
           <body>
             <h2>Guía de venta</h2>
 
-            <p>Cliente: ${detalle.venta.cliente}</p>
-            <p>Rut: ${formatoRUT(detalle.venta.rut)}</p>
-            <p>Ciudad: ${detalle.venta.ciudad || ""}</p>
-            <p>Vendedor: ${detalle.venta.usuario}</p>
-            <p>Fecha: ${formatoFecha(detalle.venta.fecha)}</p>
+            <p>Cliente: ${escaparHtml(detalle.venta.cliente)}</p>
+            <p>Rut: ${escaparHtml(formatoRUT(detalle.venta.rut))}</p>
+            <p>Ciudad: ${escaparHtml(detalle.venta.ciudad || "")}</p>
+            <p>Vendedor: ${escaparHtml(detalle.venta.usuario)}</p>
+            <p>Fecha: ${escaparHtml(formatoFecha(detalle.venta.fecha))}</p>
             <hr/>
 
             ${detalle.productos.map(p => `
               <div class="item">
-                <span>${p.nombre}</span>
-                <span>${p.tipo_unidad}</span>
-                <span>x${p.cantidad}</span>
+                <span>${escaparHtml(p.nombre)}</span>
+                <span>${escaparHtml(p.tipo_unidad)}</span>
+                <span>x${escaparHtml(p.cantidad)}</span>
                 <span>$${formatoCLP(p.precio_unitario * p.cantidad)}</span>
               </div>
             `).join("")}
