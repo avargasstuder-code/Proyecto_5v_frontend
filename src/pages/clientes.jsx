@@ -9,12 +9,11 @@ const formatoCLP = (valor) => {
 
 export default function Clientes() {
 
-
-  const [clientes, setClientes] = useState([]);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [sucursales, setSucursales] = useState([]);
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
 
   const [frecuentes, setFrecuentes] = useState([]);
-  const [stockCliente, setStockCliente] = useState([]);
+  const [stockSucursal, setStockSucursal] = useState([]);
   const [ultimasVentas, setUltimasVentas] = useState([]);
 
   const [ultimosStocks, setUltimosStocks] = useState([]);
@@ -26,11 +25,11 @@ export default function Clientes() {
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
 
-  // NUEVO CLIENTE
-  const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
+  // NUEVA SUCURSAL (crea el cliente también, si el RUT es nuevo)
+  const [mostrarNuevaSucursal, setMostrarNuevaSucursal] = useState(false);
   const [ciudades, setCiudades] = useState([]);
   const [diasVisita, setDiasVisita] = useState([]);
-  const formClienteInicial = {
+  const formSucursalInicial = {
     nombre: "",
     apellido: "",
     rut: "",
@@ -39,22 +38,22 @@ export default function Clientes() {
     ciudad_id: "",
     dia_id: ""
   };
-  const [nuevoCliente, setNuevoCliente] = useState(formClienteInicial);
+  const [nuevaSucursal, setNuevaSucursal] = useState(formSucursalInicial);
 
-  // LISTADO DE CLIENTES
+  // LISTADO COMPLETO
   const [mostrarListado, setMostrarListado] = useState(false);
-  const [clientesTodos, setClientesTodos] = useState([]);
+  const [sucursalesTodas, setSucursalesTodas] = useState([]);
   const [busquedaListado, setBusquedaListado] = useState("");
 
-  // EDITAR CLIENTE
-  const [mostrarEditarCliente, setMostrarEditarCliente] = useState(false);
-  const [clienteEditar, setClienteEditar] = useState(null);
+  // EDITAR SUCURSAL
+  const [mostrarEditarSucursal, setMostrarEditarSucursal] = useState(false);
+  const [sucursalEditar, setSucursalEditar] = useState(null);
 
-  // CLIENTES
+  // SUCURSALES (vista por día)
   useEffect(() => {
 
-    api.get("/clientes")
-      .then(res => setClientes(res.data));
+    api.get("/sucursales")
+      .then(res => setSucursales(res.data));
 
   }, []);
 
@@ -64,48 +63,53 @@ export default function Clientes() {
     api.get("/ciudades")
       .then(res => setCiudades(res.data));
 
-    api.get("/clientes/dias")
+    api.get("/sucursales/dias")
       .then(res => setDiasVisita(res.data));
 
   }, []);
 
-  // DATOS CLIENTE
+  // DATOS DE LA SUCURSAL SELECCIONADA
   useEffect(() => {
 
-    if (!clienteSeleccionado) return;
+    if (!sucursalSeleccionada) return;
 
-    api.get(`/clientes/frecuentes/${clienteSeleccionado.id}`)
+    api.get(`/sucursales/frecuentes/${sucursalSeleccionada.id}`)
       .then(res => setFrecuentes(res.data));
 
-    api.get(`/clientes/stock/${clienteSeleccionado.id}`)
-      .then(res => setStockCliente(res.data));
+    api.get(`/sucursales/stock/${sucursalSeleccionada.id}`)
+      .then(res => setStockSucursal(res.data));
 
-    api.get(`/clientes/ultimas-ventas/${clienteSeleccionado.id}`)
+    api.get(`/sucursales/ultimas-ventas/${sucursalSeleccionada.id}`)
       .then(res => setUltimasVentas(res.data));
 
-    api.get(`/clientes/ultimos-stocks/${clienteSeleccionado.id}`)
+    api.get(`/sucursales/ultimos-stocks/${sucursalSeleccionada.id}`)
       .then(res => setUltimosStocks(res.data));
 
     setSeleccionados([]);
 
-  }, [clienteSeleccionado]);
+  }, [sucursalSeleccionada]);
 
-  const diasUnicos = [...new Set(clientes.map(c => c.dia))];
+  const diasUnicos = [...new Set(sucursales.map(s => s.dia))];
 
-  const clientesFiltrados = diaSeleccionado
-    ? clientes.filter(c => c.dia === diaSeleccionado)
+  const sucursalesFiltradas = diaSeleccionado
+    ? sucursales.filter(s => s.dia === diaSeleccionado)
     : [];
 
-  // FILTRO DEL LISTADO COMPLETO (por nombre, apellido o RUT)
-  const clientesListadoFiltrados = clientesTodos.filter(c => {
+  // FILTRO DEL LISTADO COMPLETO (por nombre, apellido, RUT o dirección)
+  const sucursalesListadoFiltradas = sucursalesTodas.filter(s => {
     const termino = busquedaListado.toLowerCase().trim();
     if (!termino) return true;
 
-    const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase();
-    const rutLimpio = (c.rut || "").toLowerCase().replace(/\./g, "").replace("-", "");
+    const nombreCompleto = `${s.nombre} ${s.apellido}`.toLowerCase();
+    const rutLimpio = (s.rut || "").toLowerCase().replace(/\./g, "").replace("-", "");
     const terminoLimpio = termino.replace(/\./g, "").replace("-", "");
+    const direccion = (s.direccion || "").toLowerCase();
 
-    return nombreCompleto.includes(termino) || rutLimpio.includes(terminoLimpio);
+    return (
+      nombreCompleto.includes(termino) ||
+      (rutLimpio && rutLimpio.includes(terminoLimpio)) ||
+      direccion.includes(termino)
+    );
   });
 
   // VALIDAR RUT CHILENO
@@ -132,37 +136,41 @@ export default function Clientes() {
     return /^9\d{8}$/.test(limpio);
   };
 
-  // CREAR CLIENTE
-  const crearCliente = async () => {
+  // CREAR SUCURSAL (y el cliente, si el RUT es nuevo)
+  const crearSucursal = async () => {
 
-    if (!nuevoCliente.nombre || !nuevoCliente.apellido || !nuevoCliente.rut || !nuevoCliente.ciudad_id || !nuevoCliente.dia_id) {
-      return alert("Nombre, apellido, RUT, ciudad y día son obligatorios");
+    if (!nuevaSucursal.nombre || !nuevaSucursal.apellido || !nuevaSucursal.rut || !nuevaSucursal.ciudad_id || !nuevaSucursal.dia_id || !nuevaSucursal.direccion) {
+      return alert("Nombre, apellido, RUT, dirección, ciudad y día son obligatorios");
     }
 
-    if (!validarRUT(nuevoCliente.rut)) {
+    if (!validarRUT(nuevaSucursal.rut)) {
       return alert("RUT inválido");
     }
 
-    if (!validarTelefono(nuevoCliente.telefono)) {
+    if (!validarTelefono(nuevaSucursal.telefono)) {
       return alert("Teléfono inválido. Formato esperado: 912345678 (9 dígitos, empieza con 9)");
     }
 
     try {
 
-      await api.post("/clientes", nuevoCliente);
+      const res = await api.post("/sucursales", nuevaSucursal);
 
-      const res = await api.get("/clientes");
-      setClientes(res.data);
+      const resSucursales = await api.get("/sucursales");
+      setSucursales(resSucursales.data);
 
-      setNuevoCliente(formClienteInicial);
-      setMostrarNuevoCliente(false);
+      setNuevaSucursal(formSucursalInicial);
+      setMostrarNuevaSucursal(false);
 
-      alert("Cliente creado");
+      alert(
+        res.data.clienteExistente
+          ? "Sucursal agregada a un cliente que ya tenías"
+          : "Cliente y sucursal creados"
+      );
 
     } catch (error) {
 
       console.error(error);
-      alert(error.response?.data?.error || "Error al crear cliente");
+      alert(error.response?.data?.error || "Error al crear la sucursal");
 
     }
   };
@@ -170,91 +178,91 @@ export default function Clientes() {
   // CARGAR LISTADO COMPLETO
   const cargarListado = async () => {
     try {
-      const res = await api.get("/clientes/todos");
-      setClientesTodos(res.data);
+      const res = await api.get("/sucursales/todos");
+      setSucursalesTodas(res.data);
       setBusquedaListado("");
       setMostrarListado(true);
     } catch (error) {
       console.error(error);
-      alert("Error al cargar el listado de clientes");
+      alert("Error al cargar el listado de sucursales");
     }
   };
 
   // ABRIR EDICIÓN
-  const abrirEditar = (cliente) => {
-    setClienteEditar({
-      id: cliente.id,
-      nombre: cliente.nombre,
-      apellido: cliente.apellido,
-      rut: cliente.rut,
-      direccion: cliente.direccion || "",
-      telefono: cliente.telefono || "",
-      ciudad_id: cliente.ciudad_id || "",
-      dia_id: cliente.dia_id || ""
+  const abrirEditar = (sucursal) => {
+    setSucursalEditar({
+      id: sucursal.id,
+      nombre: sucursal.nombre,
+      apellido: sucursal.apellido,
+      rut: sucursal.rut,
+      direccion: sucursal.direccion || "",
+      telefono: sucursal.telefono || "",
+      ciudad_id: sucursal.ciudad_id || "",
+      dia_id: sucursal.dia_id || ""
     });
-    setMostrarEditarCliente(true);
+    setMostrarEditarSucursal(true);
   };
 
   // GUARDAR EDICIÓN
-  const actualizarCliente = async () => {
+  const actualizarSucursal = async () => {
 
-    if (!clienteEditar.nombre || !clienteEditar.apellido || !clienteEditar.rut || !clienteEditar.ciudad_id || !clienteEditar.dia_id) {
-      return alert("Nombre, apellido, RUT, ciudad y día son obligatorios");
+    if (!sucursalEditar.nombre || !sucursalEditar.apellido || !sucursalEditar.rut || !sucursalEditar.ciudad_id || !sucursalEditar.dia_id || !sucursalEditar.direccion) {
+      return alert("Nombre, apellido, RUT, dirección, ciudad y día son obligatorios");
     }
 
-    if (!validarRUT(clienteEditar.rut)) {
+    if (!validarRUT(sucursalEditar.rut)) {
       return alert("RUT inválido");
     }
 
-    if (!validarTelefono(clienteEditar.telefono)) {
+    if (!validarTelefono(sucursalEditar.telefono)) {
       return alert("Teléfono inválido. Formato esperado: 912345678 (9 dígitos, empieza con 9)");
     }
 
     try {
 
-      await api.put(`/clientes/${clienteEditar.id}`, clienteEditar);
+      await api.put(`/sucursales/${sucursalEditar.id}`, sucursalEditar);
 
-      const [resTodos, resClientes] = await Promise.all([
-        api.get("/clientes/todos"),
-        api.get("/clientes")
+      const [resTodas, resSucursales] = await Promise.all([
+        api.get("/sucursales/todos"),
+        api.get("/sucursales")
       ]);
 
-      setClientesTodos(resTodos.data);
-      setClientes(resClientes.data);
+      setSucursalesTodas(resTodas.data);
+      setSucursales(resSucursales.data);
 
-      setMostrarEditarCliente(false);
-      setClienteEditar(null);
+      setMostrarEditarSucursal(false);
+      setSucursalEditar(null);
 
-      alert("Cliente actualizado");
+      alert("Sucursal actualizada");
 
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.error || "Error al actualizar cliente");
+      alert(error.response?.data?.error || "Error al actualizar la sucursal");
     }
   };
 
   // ACTIVAR / DESACTIVAR
-  const toggleActivo = async (cliente) => {
+  const toggleActivo = async (sucursal) => {
 
-    const accion = cliente.activo ? "desactivar" : "activar";
+    const accion = sucursal.activo ? "desactivar" : "activar";
 
-    if (!confirm(`¿Seguro que quieres ${accion} a ${cliente.nombre} ${cliente.apellido}?`)) return;
+    if (!confirm(`¿Seguro que quieres ${accion} la sucursal de ${sucursal.nombre} ${sucursal.apellido} en ${sucursal.direccion}?`)) return;
 
     try {
 
-      await api.put(`/clientes/${cliente.id}/activo`, { activo: !cliente.activo });
+      await api.put(`/sucursales/${sucursal.id}/activo`, { activo: !sucursal.activo });
 
-      const [resTodos, resClientes] = await Promise.all([
-        api.get("/clientes/todos"),
-        api.get("/clientes")
+      const [resTodas, resSucursales] = await Promise.all([
+        api.get("/sucursales/todos"),
+        api.get("/sucursales")
       ]);
 
-      setClientesTodos(resTodos.data);
-      setClientes(resClientes.data);
+      setSucursalesTodas(resTodas.data);
+      setSucursales(resSucursales.data);
 
     } catch (error) {
       console.error(error);
-      alert("Error al cambiar el estado del cliente");
+      alert("Error al cambiar el estado de la sucursal");
     }
   };
 
@@ -287,14 +295,14 @@ export default function Clientes() {
 
     try {
 
-      await api.post("/clientes/stock-actual", {
-        cliente_id: clienteSeleccionado.id,
+      await api.post("/sucursales/stock-actual", {
+        sucursal_id: sucursalSeleccionada.id,
         producto_id: producto.id,
         stock_actual: producto.vendido
       });
 
       // actualizar stock local
-      setStockCliente(prev =>
+      setStockSucursal(prev =>
         prev.map(x =>
           x.id === producto.id
             ? {
@@ -307,7 +315,7 @@ export default function Clientes() {
       );
 
       // recargar historial
-      api.get(`/clientes/ultimos-stocks/${clienteSeleccionado.id}`)
+      api.get(`/sucursales/ultimos-stocks/${sucursalSeleccionada.id}`)
         .then(res => setUltimosStocks(res.data));
 
       alert("Stock actualizado");
@@ -326,7 +334,7 @@ export default function Clientes() {
       <h1>Clientes</h1>
 
       {/* VISTA 1 */}
-      {!diaSeleccionado && !clienteSeleccionado && !mostrarListado && (
+      {!diaSeleccionado && !sucursalSeleccionada && !mostrarListado && (
 
         <>
 
@@ -334,8 +342,8 @@ export default function Clientes() {
             <button
               className="btn-agregar"
               onClick={() => {
-                setNuevoCliente(formClienteInicial);
-                setMostrarNuevoCliente(true);
+                setNuevaSucursal(formSucursalInicial);
+                setMostrarNuevaSucursal(true);
               }}
             >
               + Agregar cliente
@@ -362,7 +370,7 @@ export default function Clientes() {
 
                 <p>
                   {
-                    clientes.filter(c => c.dia === dia).length
+                    sucursales.filter(s => s.dia === dia).length
                   } clientes
                 </p>
 
@@ -375,7 +383,7 @@ export default function Clientes() {
         </>
       )}
 
-      {/* LISTADO COMPLETO DE CLIENTES */}
+      {/* LISTADO COMPLETO */}
       {mostrarListado && (
         <>
 
@@ -390,7 +398,7 @@ export default function Clientes() {
 
           <input
             type="text"
-            placeholder="🔍 Buscar por nombre o RUT..."
+            placeholder="🔍 Buscar por nombre, RUT o dirección..."
             className="input-buscador"
             value={busquedaListado}
             onChange={(e) => setBusquedaListado(e.target.value)}
@@ -398,33 +406,33 @@ export default function Clientes() {
 
           <div className="listado-clientes">
 
-            {clientesListadoFiltrados.length === 0 && (
+            {sucursalesListadoFiltradas.length === 0 && (
               <p>No se encontraron clientes.</p>
             )}
 
-            {clientesListadoFiltrados.map(c => (
+            {sucursalesListadoFiltradas.map(s => (
 
-              <div key={c.id} className="fila-cliente-listado">
+              <div key={s.id} className="fila-cliente-listado">
 
                 <div className="info-cliente-listado">
-                  <strong>{c.nombre} {c.apellido}</strong>
-                  <span>{c.rut}</span>
-                  <span>{c.telefono}</span>
-                  <span>{c.direccion}</span>
-                  <span>{c.ciudad} · {c.dia}</span>
-                  {c.vendedor && <span>Vendedor: {c.vendedor}</span>}
-                  <span className={c.activo ? "estado-activo" : "estado-inactivo"}>
-                    {c.activo ? "Activo" : "Inactivo"}
+                  <strong>{s.nombre} {s.apellido}</strong>
+                  <span>{s.rut}</span>
+                  <span>{s.telefono || "Sin teléfono"}</span>
+                  <span>{s.direccion}</span>
+                  <span>{s.ciudad} · {s.dia}</span>
+                  {s.vendedor && <span>Vendedor: {s.vendedor}</span>}
+                  <span className={s.activo ? "estado-activo" : "estado-inactivo"}>
+                    {s.activo ? "Activo" : "Inactivo"}
                   </span>
                 </div>
 
                 <div className="acciones-cliente-listado">
-                  <button onClick={() => abrirEditar(c)}>Editar</button>
+                  <button onClick={() => abrirEditar(s)}>Editar</button>
                   <button
-                    className={c.activo ? "btn-desactivar" : "btn-activar"}
-                    onClick={() => toggleActivo(c)}
+                    className={s.activo ? "btn-desactivar" : "btn-activar"}
+                    onClick={() => toggleActivo(s)}
                   >
-                    {c.activo ? "Desactivar" : "Activar"}
+                    {s.activo ? "Desactivar" : "Activar"}
                   </button>
                 </div>
 
@@ -438,7 +446,7 @@ export default function Clientes() {
       )}
 
       {/* VISTA 2 */}
-      {diaSeleccionado && !clienteSeleccionado && (
+      {diaSeleccionado && !sucursalSeleccionada && (
         <>
 
           <button
@@ -452,27 +460,25 @@ export default function Clientes() {
 
           <div className="grid-clientes">
 
-            {clientesFiltrados.map(c => (
+            {sucursalesFiltradas.map(s => (
 
               <div
-                key={c.id}
-                className={`cliente-click ${c.deuda_pendiente > 0 ? "cliente-con-deuda" : ""}`}
-                onClick={() => setClienteSeleccionado(c)}
+                key={s.id}
+                className={`cliente-click ${s.deuda_pendiente > 0 ? "cliente-con-deuda" : ""}`}
+                onClick={() => setSucursalSeleccionada(s)}
               >
 
-                <h3>{c.nombre} {c.apellido}</h3>
+                <h3>{s.nombre} {s.apellido}</h3>
 
-                <p>{c.rut}</p>
+                <p>{s.rut}</p>
 
-                <p>{c.telefono}</p>
+                <p className="direccion-cliente">{s.direccion}</p>
 
-                <p className="ciudad-cliente">
-                  {c.ciudad}
-                </p>
+                <p>{s.telefono || "Sin teléfono"}</p>
 
-                {c.deuda_pendiente > 0 && (
+                {s.deuda_pendiente > 0 && (
                   <p className="aviso-deuda-tarjeta">
-                    ⚠️ Debe ${formatoCLP(c.deuda_pendiente)}
+                    ⚠️ Debe ${formatoCLP(s.deuda_pendiente)}
                   </p>
                 )}
 
@@ -486,21 +492,22 @@ export default function Clientes() {
       )}
 
       {/* VISTA 3 */}
-      {clienteSeleccionado && (
+      {sucursalSeleccionada && (
         <>
 
           <button
             className="btn-volver"
-            onClick={() => setClienteSeleccionado(null)}
+            onClick={() => setSucursalSeleccionada(null)}
           >
             ← Volver
           </button>
 
-          <h2>{clienteSeleccionado.nombre} {clienteSeleccionado.apellido}</h2>
+          <h2>{sucursalSeleccionada.nombre} {sucursalSeleccionada.apellido}</h2>
+          <p className="direccion-cliente">{sucursalSeleccionada.direccion}</p>
 
-          {clienteSeleccionado.deuda_pendiente > 0 && (
+          {sucursalSeleccionada.deuda_pendiente > 0 && (
             <p className="aviso-deuda-tarjeta aviso-deuda-detalle">
-              ⚠️ Este cliente debe ${formatoCLP(clienteSeleccionado.deuda_pendiente)}
+              ⚠️ Esta sucursal debe ${formatoCLP(sucursalSeleccionada.deuda_pendiente)}
             </p>
           )}
 
@@ -572,8 +579,8 @@ export default function Clientes() {
               onClick={() => {
 
                 localStorage.setItem(
-                  "clienteVenta",
-                  JSON.stringify(clienteSeleccionado)
+                  "sucursalVenta",
+                  JSON.stringify(sucursalSeleccionada)
                 );
 
                 localStorage.setItem(
@@ -592,9 +599,9 @@ export default function Clientes() {
           {/* STOCK */}
           <div className="panel">
 
-            <h3>Stock del cliente</h3>
+            <h3>Stock de la sucursal</h3>
 
-            {stockCliente.map(p => (
+            {stockSucursal.map(p => (
 
               <div key={p.id} className="item stock-item">
 
@@ -614,7 +621,7 @@ export default function Clientes() {
 
                     const valor = Number(e.target.value);
 
-                    setStockCliente(prev =>
+                    setStockSucursal(prev =>
                       prev.map(x =>
                         x.id === p.id
                           ? {
@@ -672,8 +679,8 @@ export default function Clientes() {
             onClick={() => {
 
               localStorage.setItem(
-                "clienteVenta",
-                JSON.stringify(clienteSeleccionado)
+                "sucursalVenta",
+                JSON.stringify(sucursalSeleccionada)
               );
 
               window.location.href = "/ventas";
@@ -686,60 +693,63 @@ export default function Clientes() {
         </>
       )}
 
-      {/* MODAL NUEVO CLIENTE */}
-      {mostrarNuevoCliente && (
+      {/* MODAL NUEVA SUCURSAL */}
+      {mostrarNuevaSucursal && (
 
         <div className="modal">
 
           <div className="modal-content">
 
             <h2>Nuevo Cliente</h2>
+            <p style={{ fontSize: 13, color: "#666", marginTop: -8 }}>
+              Si el RUT ya existe, esto se agrega como una sucursal nueva de ese cliente.
+            </p>
 
             <input
               placeholder="Nombre"
-              value={nuevoCliente.nombre}
+              value={nuevaSucursal.nombre}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, nombre: e.target.value })
               }
             />
 
             <input
               placeholder="Apellido"
-              value={nuevoCliente.apellido}
+              value={nuevaSucursal.apellido}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, apellido: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, apellido: e.target.value })
               }
             />
 
             <input
               placeholder="RUT"
-              value={nuevoCliente.rut}
+              value={nuevaSucursal.rut}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, rut: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, rut: e.target.value })
               }
             />
 
             <input
               placeholder="Dirección"
-              value={nuevoCliente.direccion}
+              value={nuevaSucursal.direccion}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, direccion: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, direccion: e.target.value })
               }
             />
 
             <input
               placeholder="Teléfono"
-              value={nuevoCliente.telefono}
+              value={nuevaSucursal.telefono}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, telefono: e.target.value })
               }
             />
 
             <select
               className="input"
-              value={nuevoCliente.ciudad_id}
+              value={nuevaSucursal.ciudad_id}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, ciudad_id: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, ciudad_id: e.target.value })
               }
             >
               <option value="">Seleccionar ciudad</option>
@@ -752,9 +762,9 @@ export default function Clientes() {
 
             <select
               className="input"
-              value={nuevoCliente.dia_id}
+              value={nuevaSucursal.dia_id}
               onChange={(e) =>
-                setNuevoCliente({ ...nuevoCliente, dia_id: e.target.value })
+                setNuevaSucursal({ ...nuevaSucursal, dia_id: e.target.value })
               }
             >
               <option value="">Seleccionar día de visita</option>
@@ -766,8 +776,8 @@ export default function Clientes() {
             </select>
 
             <div className="acciones">
-              <button onClick={crearCliente}>Guardar</button>
-              <button onClick={() => setMostrarNuevoCliente(false)}>
+              <button onClick={crearSucursal}>Guardar</button>
+              <button onClick={() => setMostrarNuevaSucursal(false)}>
                 Cancelar
               </button>
             </div>
@@ -777,60 +787,63 @@ export default function Clientes() {
         </div>
       )}
 
-      {/* MODAL EDITAR CLIENTE */}
-      {mostrarEditarCliente && clienteEditar && (
+      {/* MODAL EDITAR SUCURSAL */}
+      {mostrarEditarSucursal && sucursalEditar && (
 
         <div className="modal">
 
           <div className="modal-content">
 
             <h2>Editar Cliente</h2>
+            <p style={{ fontSize: 13, color: "#666", marginTop: -8 }}>
+              El nombre, apellido y RUT se aplican a todas las sucursales de este cliente.
+            </p>
 
             <input
               placeholder="Nombre"
-              value={clienteEditar.nombre}
+              value={sucursalEditar.nombre}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, nombre: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, nombre: e.target.value })
               }
             />
 
             <input
               placeholder="Apellido"
-              value={clienteEditar.apellido}
+              value={sucursalEditar.apellido}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, apellido: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, apellido: e.target.value })
               }
             />
 
             <input
               placeholder="RUT"
-              value={clienteEditar.rut}
+              value={sucursalEditar.rut}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, rut: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, rut: e.target.value })
               }
             />
 
             <input
               placeholder="Dirección"
-              value={clienteEditar.direccion}
+              value={sucursalEditar.direccion}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, direccion: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, direccion: e.target.value })
               }
             />
 
             <input
               placeholder="Teléfono"
-              value={clienteEditar.telefono}
+              value={sucursalEditar.telefono}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, telefono: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, telefono: e.target.value })
               }
             />
 
             <select
               className="input"
-              value={clienteEditar.ciudad_id}
+              value={sucursalEditar.ciudad_id}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, ciudad_id: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, ciudad_id: e.target.value })
               }
             >
               <option value="">Seleccionar ciudad</option>
@@ -843,9 +856,9 @@ export default function Clientes() {
 
             <select
               className="input"
-              value={clienteEditar.dia_id}
+              value={sucursalEditar.dia_id}
               onChange={(e) =>
-                setClienteEditar({ ...clienteEditar, dia_id: e.target.value })
+                setSucursalEditar({ ...sucursalEditar, dia_id: e.target.value })
               }
             >
               <option value="">Seleccionar día de visita</option>
@@ -857,11 +870,11 @@ export default function Clientes() {
             </select>
 
             <div className="acciones">
-              <button onClick={actualizarCliente}>Guardar</button>
+              <button onClick={actualizarSucursal}>Guardar</button>
               <button
                 onClick={() => {
-                  setMostrarEditarCliente(false);
-                  setClienteEditar(null);
+                  setMostrarEditarSucursal(false);
+                  setSucursalEditar(null);
                 }}
               >
                 Cancelar
@@ -895,6 +908,14 @@ export default function Clientes() {
               {" "}
               {detalleVenta.venta.rut}
             </p>
+
+            {detalleVenta.venta.direccion && (
+              <p>
+                <b>Dirección:</b>
+                {" "}
+                {detalleVenta.venta.direccion}
+              </p>
+            )}
 
             <p>
               <b>Fecha:</b>

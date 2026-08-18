@@ -18,17 +18,19 @@ const formatoFechaCorta = (fechaISO) => {
 function Ventas({ setIsAuth }) {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [sucursales, setSucursales] = useState([]);
   const [productosLista, setProductosLista] = useState([]);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState("");
   const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [paso, setPaso] = useState(1);
-  const [deudaCliente, setDeudaCliente] = useState([]);
+  const [deudaSucursal, setDeudaSucursal] = useState([]);
   const [mostrarAvisoDeuda, setMostrarAvisoDeuda] = useState(false);
   const [cobrosSeleccionados, setCobrosSeleccionados] = useState([]);
+  const [cobrosMetodo, setCobrosMetodo] = useState({}); // { [ventaId]: { metodo_pago, banco } }
   const [enviandoVenta, setEnviandoVenta] = useState(false);
+  const [metodoPagoVenta, setMetodoPagoVenta] = useState("");
 
   let token = null;
   try {
@@ -47,15 +49,15 @@ function Ventas({ setIsAuth }) {
 
   const cargarDatos = async () => {
     try {
-      const [productosRes, clientesRes, categoriasRes] =
+      const [productosRes, sucursalesRes, categoriasRes] =
         await Promise.all([
           api.get("/productos"),
-          api.get("/clientes"),
+          api.get("/sucursales"),
           api.get("/categorias")
         ]);
       setProductos(productosRes.data);
       setProductosLista(productosRes.data);
-      setClientes(clientesRes.data);
+      setSucursales(sucursalesRes.data);
       setCategorias(categoriasRes.data);
     } catch (error) {
       console.error(error);
@@ -65,9 +67,9 @@ function Ventas({ setIsAuth }) {
 
   useEffect(() => {
     if (productosLista.length === 0) return;
-    const clienteGuardado = localStorage.getItem("clienteVenta");
+    const sucursalGuardado = localStorage.getItem("sucursalVenta");
     const carritoGuardado = localStorage.getItem("carritoRapido");
-    if (clienteGuardado) setClienteSeleccionado(JSON.parse(clienteGuardado).id);
+    if (sucursalGuardado) setSucursalSeleccionada(JSON.parse(sucursalGuardado).id);
     if (carritoGuardado) {
       const prods = JSON.parse(carritoGuardado);
       const carritoFormateado = prods.map(p => {
@@ -91,32 +93,45 @@ function Ventas({ setIsAuth }) {
       setCarrito(carritoFormateado);
       localStorage.removeItem("carritoRapido");
     }
-    localStorage.removeItem("clienteVenta");
+    localStorage.removeItem("sucursalVenta");
   }, [productosLista]);
 
-  // Cada vez que se elige un cliente distinto, chequeamos si tiene
+  // Cada vez que se elige una sucursal distinta, chequeamos si tiene
   // cheques o créditos pendientes de cobro
   useEffect(() => {
-    if (!clienteSeleccionado) {
-      setDeudaCliente([]);
+    if (!sucursalSeleccionada) {
+      setDeudaSucursal([]);
       setCobrosSeleccionados([]);
       return;
     }
 
-    api.get(`/clientes/${clienteSeleccionado}/deuda`)
-      .then(res => setDeudaCliente(res.data.deudas || []))
+    api.get(`/sucursales/${sucursalSeleccionada}/deuda`)
+      .then(res => setDeudaSucursal(res.data.deudas || []))
       .catch((error) => {
         console.error(error);
-        setDeudaCliente([]);
+        setDeudaSucursal([]);
       });
 
     setCobrosSeleccionados([]);
-  }, [clienteSeleccionado]);
+  }, [sucursalSeleccionada]);
 
   const toggleCobro = (ventaId) => {
     setCobrosSeleccionados(prev =>
       prev.includes(ventaId) ? prev.filter(id => id !== ventaId) : [...prev, ventaId]
     );
+    setCobrosMetodo(prev => {
+      const copia = { ...prev };
+      delete copia[ventaId];
+      return copia;
+    });
+  };
+
+  const cambiarMetodoCobro = (ventaId, metodo_pago) => {
+    setCobrosMetodo(prev => ({ ...prev, [ventaId]: { metodo_pago, banco: "" } }));
+  };
+
+  const cambiarBancoCobro = (ventaId, banco) => {
+    setCobrosMetodo(prev => ({ ...prev, [ventaId]: { ...prev[ventaId], banco } }));
   };
 
   // Precio de catálogo para un ítem, según su tipo (carton/medio/unitario)
@@ -202,11 +217,12 @@ function Ventas({ setIsAuth }) {
     if (enviandoVenta) return;
 
     if (carrito.length === 0) return alert("El carrito está vacío");
-    if (!clienteSeleccionado) return alert("Debes seleccionar un cliente");
+    if (!sucursalSeleccionada) return alert("Debes seleccionar un cliente");
+    if (!metodoPagoVenta) return alert("Elegí si la venta queda en efectivo o pendiente");
 
-    // Si el cliente tiene deuda pendiente, mostramos el aviso primero
+    // Si la sucursal tiene deuda pendiente, mostramos el aviso primero
     // y esperamos confirmación antes de vender
-    if (deudaCliente.length > 0) {
+    if (deudaSucursal.length > 0) {
       setMostrarAvisoDeuda(true);
       return;
     }
@@ -219,6 +235,18 @@ function Ventas({ setIsAuth }) {
     // simultáneo (ej: doble tap en el botón "Continuar igual")
     if (enviandoVenta) return;
 
+    // Si se marcó cobrar alguna deuda vieja en el momento, hay que
+    // saber con qué método se la pagaron antes de mandar nada
+    for (const ventaId of cobrosSeleccionados) {
+      const metodo = cobrosMetodo[ventaId]?.metodo_pago;
+      if (!metodo) {
+        return alert("Elegí el método de pago con el que te pagaron la deuda pendiente");
+      }
+      if (metodo === "transferencia" && !cobrosMetodo[ventaId]?.banco) {
+        return alert("Elegí el banco de la transferencia con la que te pagaron la deuda");
+      }
+    }
+
     setEnviandoVenta(true);
     setMostrarAvisoDeuda(false);
 
@@ -226,14 +254,20 @@ function Ventas({ setIsAuth }) {
       // Si el vendedor cobró alguna deuda pendiente en el momento
       // (marcada con el checkbox del aviso), la cerramos primero
       for (const ventaId of cobrosSeleccionados) {
-        const deuda = deudaCliente.find(d => d.id === ventaId);
+        const deuda = deudaSucursal.find(d => d.id === ventaId);
         if (deuda) {
-          await api.post(`/ventas/${ventaId}/abono`, { monto: deuda.saldo });
+          const { metodo_pago, banco } = cobrosMetodo[ventaId];
+          await api.post(`/ventas/${ventaId}/abono`, {
+            monto: deuda.saldo,
+            metodo_pago,
+            banco: metodo_pago === "transferencia" ? banco : undefined
+          });
         }
       }
 
       await api.post("/ventas", {
-        cliente_id: clienteSeleccionado,
+        sucursal_id: sucursalSeleccionada,
+        metodo_pago: metodoPagoVenta,
         productos: carrito.map(item => ({
           producto_id: item.producto_id,
           tipo: item.tipo,
@@ -246,7 +280,9 @@ function Ventas({ setIsAuth }) {
       setCarrito([]);
       setPaso(1);
       setCobrosSeleccionados([]);
-      setDeudaCliente([]);
+      setCobrosMetodo({});
+      setMetodoPagoVenta("");
+      setDeudaSucursal([]);
       cargarDatos();
     } catch (error) {
       console.error(error);
@@ -339,18 +375,43 @@ function Ventas({ setIsAuth }) {
         <div className="card-seccion">
           <h2>Cliente</h2>
           <div className="cliente-box">
-            <select value={clienteSeleccionado} onChange={(e) => setClienteSeleccionado(e.target.value)} className="input">
+            <select value={sucursalSeleccionada} onChange={(e) => setSucursalSeleccionada(e.target.value)} className="input">
               <option value="">Seleccionar cliente</option>
-              {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} {c.apellido} - {c.rut}</option>)}
+              {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre} {s.apellido} - {s.direccion}</option>)}
             </select>
 
-            {deudaCliente.length > 0 && (
+            {deudaSucursal.length > 0 && (
               <p className="aviso-deuda-inline">
-                ⚠️ Este cliente debe ${formatoCLP(deudaCliente.reduce((acc, d) => acc + Number(d.saldo), 0))}
-                {" "}({deudaCliente.length} pago{deudaCliente.length > 1 ? "s" : ""} pendiente{deudaCliente.length > 1 ? "s" : ""})
+                ⚠️ Este cliente debe ${formatoCLP(deudaSucursal.reduce((acc, d) => acc + Number(d.saldo), 0))}
+                {" "}({deudaSucursal.length} pago{deudaSucursal.length > 1 ? "s" : ""} pendiente{deudaSucursal.length > 1 ? "s" : ""})
               </p>
             )}
           </div>
+        </div>
+
+        <div className="card-seccion">
+          <h2>¿Cómo queda esta venta?</h2>
+          <div className="metodos">
+            <button
+              type="button"
+              className={`metodo ${metodoPagoVenta === "efectivo" ? "activo" : ""}`}
+              onClick={() => setMetodoPagoVenta("efectivo")}
+            >
+              Efectivo
+            </button>
+            <button
+              type="button"
+              className={`metodo ${metodoPagoVenta === "pendiente" ? "activo" : ""}`}
+              onClick={() => setMetodoPagoVenta("pendiente")}
+            >
+              Pendiente
+            </button>
+          </div>
+          {metodoPagoVenta === "pendiente" && (
+            <p className="aviso-deuda-inline" style={{ color: "#666" }}>
+              Vas a poder definir el método real (crédito, transferencia, etc.) después, en "Método de pago"
+            </p>
+          )}
         </div>
 
         <button className="btn-vender" onClick={vender} disabled={enviandoVenta}>
@@ -363,46 +424,77 @@ function Ventas({ setIsAuth }) {
               <h3 style={{ marginTop: 0 }}>⚠️ Cliente con deuda pendiente</h3>
 
               <p style={{ fontSize: 15, marginTop: -8 }}>
-                Total pendiente: <b>${formatoCLP(deudaCliente.reduce((acc, d) => acc + Number(d.saldo), 0))}</b>
-                {" "}({deudaCliente.length} pago{deudaCliente.length > 1 ? "s" : ""})
+                Total pendiente: <b>${formatoCLP(deudaSucursal.reduce((acc, d) => acc + Number(d.saldo), 0))}</b>
+                {" "}({deudaSucursal.length} pago{deudaSucursal.length > 1 ? "s" : ""})
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-                {deudaCliente.map(d => (
-                  <label
-                    key={d.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      fontSize: 14,
-                      textAlign: "left",
-                      border: "1px solid #ddd",
-                      borderRadius: 8,
-                      padding: 10
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={cobrosSeleccionados.includes(d.id)}
-                      onChange={() => toggleCobro(d.id)}
-                      disabled={enviandoVenta}
-                    />
-                    <span>
-                      <b>{d.metodo_pago === "cheque" ? "Cheque" : "Crédito"}</b> · Saldo ${formatoCLP(d.saldo)}
-                      {d.monto_pagado > 0 && (
-                        <> (ya abonó ${formatoCLP(d.monto_pagado)} de ${formatoCLP(d.total)})</>
+                {deudaSucursal.map(d => {
+                  const marcado = cobrosSeleccionados.includes(d.id);
+                  const metodo = cobrosMetodo[d.id]?.metodo_pago || "";
+
+                  return (
+                    <div
+                      key={d.id}
+                      style={{
+                        border: "1px solid #ddd",
+                        borderRadius: 8,
+                        padding: 10,
+                        textAlign: "left"
+                      }}
+                    >
+                      <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14 }}>
+                        <input
+                          type="checkbox"
+                          checked={marcado}
+                          onChange={() => toggleCobro(d.id)}
+                          disabled={enviandoVenta}
+                        />
+                        <span>
+                          <b>{d.metodo_pago === "cheque_fecha" ? "Cheque a fecha" : "Crédito"}</b> · Saldo ${formatoCLP(d.saldo)}
+                          {d.monto_pagado > 0 && (
+                            <> (ya abonó ${formatoCLP(d.monto_pagado)} de ${formatoCLP(d.total)})</>
+                          )}
+                          <br />
+                          Vence: {formatoFechaCorta(d.vencimiento)}
+                          {d.vencido && <span style={{ color: "#c0392b" }}> · VENCIDO</span>}
+                          <br />
+                          <span style={{ fontSize: 12, color: "#666" }}>
+                            Marcá esta casilla si el cliente te paga esto ahora
+                          </span>
+                        </span>
+                      </label>
+
+                      {marcado && (
+                        <div style={{ marginTop: 10, marginLeft: 24, display: "flex", flexDirection: "column", gap: 6 }}>
+                          <select
+                            value={metodo}
+                            onChange={(e) => cambiarMetodoCobro(d.id, e.target.value)}
+                            disabled={enviandoVenta}
+                          >
+                            <option value="">¿Con qué te pagó?</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="deposito">Depósito</option>
+                            <option value="cheque_dia">Cheque al día</option>
+                          </select>
+
+                          {metodo === "transferencia" && (
+                            <select
+                              value={cobrosMetodo[d.id]?.banco || ""}
+                              onChange={(e) => cambiarBancoCobro(d.id, e.target.value)}
+                              disabled={enviandoVenta}
+                            >
+                              <option value="">Banco</option>
+                              <option value="santander">Banco Santander</option>
+                              <option value="estado">Banco Estado</option>
+                            </select>
+                          )}
+                        </div>
                       )}
-                      <br />
-                      Vence: {formatoFechaCorta(d.vencimiento)}
-                      {d.vencido && <span style={{ color: "#c0392b" }}> · VENCIDO</span>}
-                      <br />
-                      <span style={{ fontSize: 12, color: "#666" }}>
-                        Marcá esta casilla si el cliente te paga esto ahora
-                      </span>
-                    </span>
-                  </label>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

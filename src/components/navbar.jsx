@@ -32,7 +32,7 @@ export default function Navbar({ setIsAuth }) {
         )}
         <Link to="/historial" onClick={() => setMenuAbierto(false)}>Historial</Link>
         {!esAdmin && (
-          <Link to="/cierre-dia" onClick={() => setMenuAbierto(false)}>Cierre del día</Link>
+          <Link to="/cierre-dia" onClick={() => setMenuAbierto(false)}>Método de pago</Link>
         )}
         <Link to="/deudores" onClick={() => setMenuAbierto(false)}>Deudores</Link>
         <Link to="/perfil" onClick={() => setMenuAbierto(false)}>Perfil</Link>

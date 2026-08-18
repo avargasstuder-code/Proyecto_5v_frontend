@@ -9,21 +9,30 @@ const formatoCLP = (valor) => {
 
 const METODOS = [
   { value: "efectivo", label: "Efectivo" },
+  { value: "credito", label: "Crédito" },
   { value: "transferencia", label: "Transferencia" },
   { value: "deposito", label: "Depósito" },
-  { value: "cheque", label: "Cheque" },
-  { value: "credito", label: "Crédito" }
+  { value: "cheque_dia", label: "Cheque al día" },
+  { value: "cheque_fecha", label: "Cheque a fecha" }
 ];
 
-const REQUIERE_DIAS = ["cheque", "credito"];
+const REQUIERE_DIAS = ["credito", "cheque_fecha"];
+const REQUIERE_BANCO = ["transferencia"];
 
 const ETIQUETA_METODO = {
   efectivo: "Efectivo",
+  credito: "Crédito",
   transferencia: "Transferencia",
   deposito: "Depósito",
-  cheque: "Cheque",
-  credito: "Crédito",
+  cheque_dia: "Cheque al día",
+  cheque_fecha: "Cheque a fecha",
+  pendiente: "Pendiente",
   sin_definir: "Sin definir"
+};
+
+const ETIQUETA_BANCO = {
+  santander: "Banco Santander",
+  estado: "Banco Estado"
 };
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
@@ -75,13 +84,13 @@ function SelectorFecha({ value, onChange }) {
   );
 }
 
-export default function CierreDia() {
+export default function MetodoPago() {
   const [tab, setTab] = useState("pagos"); // "pagos" | "resumen"
   const [fecha, setFecha] = useState(hoyISO());
 
   const [ventas, setVentas] = useState([]);
   const [cargando, setCargando] = useState(false);
-  const [seleccion, setSeleccion] = useState({}); // { [ventaId]: { metodo_pago, dias } }
+  const [seleccion, setSeleccion] = useState({}); // { [ventaId]: { metodo_pago, dias, banco } }
   const [guardandoId, setGuardandoId] = useState(null);
 
   const [resumen, setResumen] = useState(null);
@@ -98,18 +107,14 @@ export default function CierreDia() {
       const res = await api.get("/ventas/del-dia", { params: { fecha } });
       setVentas(res.data);
 
-      // Precargamos la selección con lo que ya esté guardado
       const inicial = {};
       res.data.forEach(v => {
-        inicial[v.id] = {
-          metodo_pago: v.metodo_pago || "",
-          dias: v.dias_cheque || ""
-        };
+        inicial[v.id] = { metodo_pago: "", dias: "", banco: "" };
       });
       setSeleccion(inicial);
     } catch (error) {
       console.error(error);
-      alert("Error al cargar las ventas del día");
+      alert("Error al cargar las ventas pendientes de ese día");
     } finally {
       setCargando(false);
     }
@@ -131,7 +136,7 @@ export default function CierreDia() {
   const cambiarMetodo = (ventaId, metodo_pago) => {
     setSeleccion(prev => ({
       ...prev,
-      [ventaId]: { metodo_pago, dias: prev[ventaId]?.dias || "" }
+      [ventaId]: { metodo_pago, dias: "", banco: "" }
     }));
   };
 
@@ -139,6 +144,13 @@ export default function CierreDia() {
     setSeleccion(prev => ({
       ...prev,
       [ventaId]: { ...prev[ventaId], dias }
+    }));
+  };
+
+  const cambiarBanco = (ventaId, banco) => {
+    setSeleccion(prev => ({
+      ...prev,
+      [ventaId]: { ...prev[ventaId], banco }
     }));
   };
 
@@ -158,14 +170,21 @@ export default function CierreDia() {
       }
     }
 
+    if (REQUIERE_BANCO.includes(sel.metodo_pago) && !sel.banco) {
+      alert("Elegí el banco de la transferencia");
+      return;
+    }
+
     setGuardandoId(venta.id);
     try {
-      const res = await api.put(`/ventas/${venta.id}/metodo-pago`, {
+      await api.put(`/ventas/${venta.id}/metodo-pago`, {
         metodo_pago: sel.metodo_pago,
-        dias: REQUIERE_DIAS.includes(sel.metodo_pago) ? Number(sel.dias) : undefined
+        dias: REQUIERE_DIAS.includes(sel.metodo_pago) ? Number(sel.dias) : undefined,
+        banco: REQUIERE_BANCO.includes(sel.metodo_pago) ? sel.banco : undefined
       });
 
-      setVentas(prev => prev.map(v => (v.id === venta.id ? { ...v, ...res.data } : v)));
+      // Ya quedó resuelta, sale de la lista de pendientes
+      setVentas(prev => prev.filter(v => v.id !== venta.id));
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.error || "Error al guardar");
@@ -175,11 +194,10 @@ export default function CierreDia() {
   };
 
   const totalDia = ventas.reduce((acc, v) => acc + Number(v.total), 0);
-  const pendientesPorDefinir = ventas.filter(v => !v.metodo_pago).length;
 
   return (
     <div className="container">
-      <h1>Cierre del día</h1>
+      <h1>Método de pago</h1>
 
       <div className="cierre-tabs">
         <button
@@ -203,44 +221,31 @@ export default function CierreDia() {
 
       {tab === "pagos" && (
         <>
-          {cargando && <p>Cargando ventas...</p>}
+          {cargando && <p>Cargando ventas pendientes...</p>}
 
           {!cargando && ventas.length === 0 && (
-            <p>No hay ventas registradas ese día.</p>
+            <p>No hay ventas pendientes de método de pago ese día 🎉</p>
           )}
 
           {!cargando && ventas.length > 0 && (
             <>
               <p className="cierre-resumen-rapido">
-                {ventas.length} venta(s) · Total ${formatoCLP(totalDia)}
-                {pendientesPorDefinir > 0 && (
-                  <span className="badge-pendiente">
-                    {" "}· {pendientesPorDefinir} sin método de pago
-                  </span>
-                )}
+                {ventas.length} venta{ventas.length > 1 ? "s" : ""} pendiente{ventas.length > 1 ? "s" : ""} · Total ${formatoCLP(totalDia)}
               </p>
 
               <div className="lista-cierre">
                 {ventas.map(v => {
-                  const sel = seleccion[v.id] || { metodo_pago: "", dias: "" };
-                  const yaGuardado = !!v.metodo_pago;
+                  const sel = seleccion[v.id] || { metodo_pago: "", dias: "", banco: "" };
                   const requiereDias = REQUIERE_DIAS.includes(sel.metodo_pago);
+                  const requiereBanco = REQUIERE_BANCO.includes(sel.metodo_pago);
 
                   return (
-                    <div key={v.id} className={`fila-cierre ${yaGuardado ? "guardado" : ""}`}>
+                    <div key={v.id} className="fila-cierre">
                       <div className="fila-cierre-info">
                         <span className="cliente">
                           {v.cliente_nombre} {v.cliente_apellido}
                         </span>
                         <span className="monto">${formatoCLP(v.total)}</span>
-                        {yaGuardado && (
-                          <span className="estado-guardado">
-                            ✔ {ETIQUETA_METODO[v.metodo_pago]}
-                            {REQUIERE_DIAS.includes(v.metodo_pago) && ` (${v.dias_cheque} días)`}
-                            {v.estado_pago === "pendiente" && " · pendiente de cobro"}
-                            {v.estado_pago === "parcial" && " · pago parcial, queda saldo pendiente"}
-                          </span>
-                        )}
                       </div>
 
                       <div className="fila-cierre-controles">
@@ -253,6 +258,17 @@ export default function CierreDia() {
                             <option key={m.value} value={m.value}>{m.label}</option>
                           ))}
                         </select>
+
+                        {requiereBanco && (
+                          <select
+                            value={sel.banco}
+                            onChange={(e) => cambiarBanco(v.id, e.target.value)}
+                          >
+                            <option value="">Banco...</option>
+                            <option value="santander">Banco Santander</option>
+                            <option value="estado">Banco Estado</option>
+                          </select>
+                        )}
 
                         {requiereDias && (
                           <div className="dias-plazo">

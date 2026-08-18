@@ -31,6 +31,11 @@
   font-size: 16px;
 }
 
+.tarjeta-deudor-header .direccion {
+  color: #666;
+  font-size: 13px;
+}
+
 .tarjeta-deudor-header .telefono {
   color: #666;
   font-size: 13px;

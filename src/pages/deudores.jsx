@@ -20,9 +20,10 @@ const ETIQUETA_ESTADO = {
 };
 
 export default function Deudores() {
-  const [clientes, setClientes] = useState([]);
+  const [deudores, setDeudores] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [montos, setMontos] = useState({}); // { [ventaId]: string }
+  const [metodos, setMetodos] = useState({}); // { [ventaId]: { metodo_pago, banco } }
   const [guardandoId, setGuardandoId] = useState(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function Deudores() {
     setCargando(true);
     try {
       const res = await api.get("/ventas/deudores");
-      setClientes(res.data);
+      setDeudores(res.data);
     } catch (error) {
       console.error(error);
       alert("Error al cargar el listado de deudores");
@@ -50,9 +51,19 @@ export default function Deudores() {
     setMontos(prev => ({ ...prev, [ventaId]: String(Math.round(saldo)) }));
   };
 
+  const cambiarMetodo = (ventaId, metodo_pago) => {
+    setMetodos(prev => ({ ...prev, [ventaId]: { metodo_pago, banco: "" } }));
+  };
+
+  const cambiarBanco = (ventaId, banco) => {
+    setMetodos(prev => ({ ...prev, [ventaId]: { ...prev[ventaId], banco } }));
+  };
+
   const registrarAbono = async (ventaId, saldo) => {
     const montoTexto = montos[ventaId];
     const monto = Number(montoTexto);
+    const metodo_pago = metodos[ventaId]?.metodo_pago;
+    const banco = metodos[ventaId]?.banco;
 
     if (!montoTexto || !Number.isFinite(monto) || monto <= 0) {
       alert("Ingresá un monto válido");
@@ -64,10 +75,25 @@ export default function Deudores() {
       return;
     }
 
+    if (!metodo_pago) {
+      alert("Elegí con qué método te pagaron");
+      return;
+    }
+
+    if (metodo_pago === "transferencia" && !banco) {
+      alert("Elegí el banco de la transferencia");
+      return;
+    }
+
     setGuardandoId(ventaId);
     try {
-      await api.post(`/ventas/${ventaId}/abono`, { monto });
+      await api.post(`/ventas/${ventaId}/abono`, {
+        monto,
+        metodo_pago,
+        banco: metodo_pago === "transferencia" ? banco : undefined
+      });
       setMontos(prev => ({ ...prev, [ventaId]: "" }));
+      setMetodos(prev => ({ ...prev, [ventaId]: { metodo_pago: "", banco: "" } }));
       await cargarDeudores();
     } catch (error) {
       console.error(error);
@@ -77,7 +103,7 @@ export default function Deudores() {
     }
   };
 
-  const totalGeneral = clientes.reduce((acc, c) => acc + c.deudaTotal, 0);
+  const totalGeneral = deudores.reduce((acc, d) => acc + d.deudaTotal, 0);
 
   return (
     <div className="container">
@@ -85,74 +111,102 @@ export default function Deudores() {
 
       {cargando && <p>Cargando...</p>}
 
-      {!cargando && clientes.length === 0 && (
+      {!cargando && deudores.length === 0 && (
         <p>No hay deudas pendientes 🎉</p>
       )}
 
-      {!cargando && clientes.length > 0 && (
+      {!cargando && deudores.length > 0 && (
         <>
           <p className="deudores-total-general">
-            Deuda total: <b>${formatoCLP(totalGeneral)}</b> · {clientes.length} cliente(s)
+            Deuda total: <b>${formatoCLP(totalGeneral)}</b> · {deudores.length} sucursal(es)
           </p>
 
           <div className="lista-deudores">
-            {clientes.map(cliente => (
-              <div key={cliente.cliente_id} className="tarjeta-deudor">
+            {deudores.map(deudor => (
+              <div key={deudor.sucursal_id} className="tarjeta-deudor">
                 <div className="tarjeta-deudor-header">
                   <span className="nombre">
-                    {cliente.cliente_nombre} {cliente.cliente_apellido}
+                    {deudor.cliente_nombre} {deudor.cliente_apellido}
                   </span>
-                  {cliente.telefono && (
-                    <span className="telefono">{cliente.telefono}</span>
+                  <span className="direccion">{deudor.sucursal_direccion}</span>
+                  {deudor.telefono && (
+                    <span className="telefono">{deudor.telefono}</span>
                   )}
-                  <span className="deuda-total">${formatoCLP(cliente.deudaTotal)}</span>
+                  <span className="deuda-total">${formatoCLP(deudor.deudaTotal)}</span>
                 </div>
 
                 <div className="deudas-detalle">
-                  {cliente.deudas.map(d => (
-                    <div key={d.venta_id} className={`fila-deuda ${d.vencido ? "vencida" : ""}`}>
-                      <div className="fila-deuda-info">
-                        <span>
-                          <b>{d.metodo_pago === "cheque" ? "Cheque" : "Crédito"}</b>
-                          {" "}· Total ${formatoCLP(d.total)}
-                          {d.monto_pagado > 0 && (
-                            <> · Abonado ${formatoCLP(d.monto_pagado)}</>
-                          )}
-                        </span>
-                        <span className="saldo">Saldo: ${formatoCLP(d.saldo)}</span>
-                        <span className="meta">
-                          {ETIQUETA_ESTADO[d.estado_pago]} · Vence {formatoFechaCorta(d.vencimiento)}
-                          {d.vencido && <span className="badge-vencido"> VENCIDO</span>}
-                        </span>
-                      </div>
+                  {deudor.deudas.map(d => {
+                    const metodoElegido = metodos[d.venta_id]?.metodo_pago || "";
 
-                      <div className="fila-deuda-controles">
-                        <input
-                          type="number"
-                          min="1"
-                          max={d.saldo}
-                          placeholder="Monto"
-                          value={montos[d.venta_id] || ""}
-                          onChange={(e) => cambiarMonto(d.venta_id, e.target.value)}
-                        />
-                        <button
-                          type="button"
-                          className="btn-secundario"
-                          onClick={() => usarSaldoCompleto(d.venta_id, d.saldo)}
-                        >
-                          Todo
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-guardar-fila"
-                          disabled={guardandoId === d.venta_id}
-                          onClick={() => registrarAbono(d.venta_id, d.saldo)}
-                        >
-                          {guardandoId === d.venta_id ? "Guardando..." : "Registrar pago"}
-                        </button>
+                    return (
+                      <div key={d.venta_id} className={`fila-deuda ${d.vencido ? "vencida" : ""}`}>
+                        <div className="fila-deuda-info">
+                          <span>
+                            <b>{d.metodo_pago === "cheque_fecha" ? "Cheque a fecha" : "Crédito"}</b>
+                            {" "}· Total ${formatoCLP(d.total)}
+                            {d.monto_pagado > 0 && (
+                              <> · Abonado ${formatoCLP(d.monto_pagado)}</>
+                            )}
+                          </span>
+                          <span className="saldo">Saldo: ${formatoCLP(d.saldo)}</span>
+                          <span className="meta">
+                            {ETIQUETA_ESTADO[d.estado_pago]} · Vence {formatoFechaCorta(d.vencimiento)}
+                            {d.vencido && <span className="badge-vencido"> VENCIDO</span>}
+                          </span>
+                        </div>
+
+                        <div className="fila-deuda-controles">
+                          <input
+                            type="number"
+                            min="1"
+                            max={d.saldo}
+                            placeholder="Monto"
+                            value={montos[d.venta_id] || ""}
+                            onChange={(e) => cambiarMonto(d.venta_id, e.target.value)}
+                          />
+                          <button
+                            type="button"
+                            className="btn-secundario"
+                            onClick={() => usarSaldoCompleto(d.venta_id, d.saldo)}
+                          >
+                            Todo
+                          </button>
+
+                          <select
+                            value={metodoElegido}
+                            onChange={(e) => cambiarMetodo(d.venta_id, e.target.value)}
+                          >
+                            <option value="">¿Con qué te pagó?</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="deposito">Depósito</option>
+                            <option value="cheque_dia">Cheque al día</option>
+                          </select>
+
+                          {metodoElegido === "transferencia" && (
+                            <select
+                              value={metodos[d.venta_id]?.banco || ""}
+                              onChange={(e) => cambiarBanco(d.venta_id, e.target.value)}
+                            >
+                              <option value="">Banco</option>
+                              <option value="santander">Banco Santander</option>
+                              <option value="estado">Banco Estado</option>
+                            </select>
+                          )}
+
+                          <button
+                            type="button"
+                            className="btn-guardar-fila"
+                            disabled={guardandoId === d.venta_id}
+                            onClick={() => registrarAbono(d.venta_id, d.saldo)}
+                          >
+                            {guardandoId === d.venta_id ? "Guardando..." : "Registrar pago"}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

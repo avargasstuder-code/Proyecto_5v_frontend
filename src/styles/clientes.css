@@ -437,4 +437,10 @@ select {
   font-size: 15px;
   margin-bottom: 12px;
 }
+
+.direccion-cliente {
+  font-size: 13px;
+  color: #555;
+  margin: 2px 0;
+}
  
