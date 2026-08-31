@@ -7,9 +7,10 @@ export default function Perfil() {
   const [usuarios, setUsuarios] = useState([]);
   const [passwords, setPasswords] = useState({ actual: "", nueva: "", confirmarNueva: "" });
   const [nuevoUsuario, setNuevoUsuario] = useState({
-    nombre: "", email: "", password: "", rol: "vendedor"
+    nombre: "", username: "", email: "", password: "", rol: "vendedor"
   });
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [nuevoUsername, setNuevoUsername] = useState("");
 
   const token = localStorage.getItem("token");
   const payload = token ? JSON.parse(atob(token.split(".")[1])) : null;
@@ -47,11 +48,25 @@ export default function Perfil() {
     }
   };
 
+  const cambiarUsername = async () => {
+    if (!nuevoUsername.trim()) {
+      return alert("Escribí el nuevo username");
+    }
+
+    try {
+      await api.put("/auth/cambiar-username", { username: nuevoUsername.trim() });
+      alert("Username actualizado. La próxima vez que inicies sesión, usá el nuevo.");
+      setNuevoUsername("");
+    } catch (error) {
+      alert(error.response?.data?.error || "Error");
+    }
+  };
+
   const crearUsuario = async () => {
     try {
       await api.post("/auth/register", nuevoUsuario);
       alert("Usuario creado");
-      setNuevoUsuario({ nombre: "", email: "", password: "", rol: "vendedor" });
+      setNuevoUsuario({ nombre: "", username: "", email: "", password: "", rol: "vendedor" });
       cargarUsuarios();
     } catch (error) {
       alert(error.response?.data?.error || "Error");
@@ -108,6 +123,19 @@ export default function Perfil() {
         </button>
       </div>
 
+      <div className="card-perfil">
+        <h2>Cambiar mi username</h2>
+        <p style={{ fontSize: 13, color: "#666", marginTop: -8 }}>
+          Es lo que usás para iniciar sesión, en vez del correo.
+        </p>
+        <input
+          placeholder="Nuevo username"
+          value={nuevoUsername}
+          onChange={(e) => setNuevoUsername(e.target.value)}
+        />
+        <button onClick={cambiarUsername}>Guardar username</button>
+      </div>
+
       {esAdmin && (
         <>
           <div className="card-perfil">
@@ -118,7 +146,12 @@ export default function Perfil() {
               onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })}
             />
             <input
-              placeholder="Correo"
+              placeholder="Username (para iniciar sesión)"
+              value={nuevoUsuario.username}
+              onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, username: e.target.value })}
+            />
+            <input
+              placeholder="Correo (opcional)"
               value={nuevoUsuario.email}
               onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, email: e.target.value.toLowerCase() })}
             />
@@ -144,7 +177,7 @@ export default function Perfil() {
                 <div key={u.id} className="usuario-item">
                   <div>
                     <strong>{u.nombre}</strong>
-                    <p>{u.email}</p>
+                    <p>@{u.username}</p>
                     <span>{u.rol}</span>
                   </div>
                   <button

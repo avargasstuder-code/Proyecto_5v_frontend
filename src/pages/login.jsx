@@ -3,7 +3,7 @@ import { api } from "../api";
 
 export default function Login({ setIsAuth }) {
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: ""
   });
 
@@ -37,9 +37,9 @@ export default function Login({ setIsAuth }) {
         <h2>Iniciar sesión</h2>
 
         <input
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value.toLowerCase() })}
+          placeholder="Username"
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })}
           style={styles.input}
         />
 
