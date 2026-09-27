@@ -33,6 +33,10 @@ body {
   background-color: var(--gris-fondo);
   font-family: Arial, sans-serif;
   color: var(--negro);
+  html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 }
 
 .container {
@@ -1110,77 +1114,65 @@ button:disabled {
 
 @media (max-width: 768px) {
 
+  /* Ocultar el encabezado de la lista en pantallas pequeñas */
   .header-lista {
-    display: none;
+    display: none !important;
   }
 
+  /* Cambiar las filas de producto a formato tarjeta vertical */
   .fila-producto {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     align-items: stretch;
-
-    width: 100%;
-    min-width: 0;
-
-    gap: 10px;
-
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    gap: 12px;
     padding: 14px;
-
-    overflow: visible;
+    overflow: hidden;
   }
 
+  /* Asegurar que las subsecciones ocupen todo el ancho disponible */
   .fila-producto > .info,
   .fila-producto > .stock,
   .fila-producto > .precios,
   .fila-producto > .acciones-lista {
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-
-    grid-column: auto;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    grid-column: auto !important;
   }
 
   .fila-producto > .stock {
+    display: flex;
     flex-direction: row;
-
     justify-content: space-between;
     align-items: center;
-
     text-align: left;
   }
 
   .fila-producto > .precios {
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
-
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-
-    overflow: visible;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   .fila-producto > .precios span {
     width: 100%;
-
     white-space: normal;
-
-    overflow: visible;
-
-    text-overflow: clip;
+    word-break: break-word;
   }
 
   .fila-producto > .acciones-lista {
+    display: flex;
     justify-content: stretch;
-
-    width: 100%;
-    max-width: none;
+    width: 100% !important;
   }
 
   .fila-producto > .acciones-lista button {
-    width: 100%;
-    max-width: none;
-
-    flex: 1;
+    width: 100% !important;
   }
 }
 
