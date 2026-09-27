@@ -1,45 +1,173 @@
-.perfil-container {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
+/* =========================================================
+   PERFIL - ESTILO CORPORATIVO
+   Verde / Negro / Blanco
+   ========================================================= */
+
+:root {
+  --verde-principal: #176b3a;
+  --verde-oscuro: #0f4d2b;
+  --verde-suave: #eaf4ee;
+  --negro: #1f2933;
+  --gris-texto: #667085;
+  --gris-borde: #d9e0dc;
+  --gris-fondo: #f5f7f6;
+  --blanco: #ffffff;
+  --rojo: #c0392b;
+  --rojo-suave: #fdf0ee;
 }
 
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.perfil-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  box-sizing: border-box;
+}
+
+/* Título principal */
+
+.perfil-container > h1 {
+  margin: 0 0 24px;
+  color: var(--negro);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* Línea visual debajo del título */
+
+.perfil-container > h1::after {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 3px;
+  margin-top: 9px;
+  background: var(--verde-principal);
+  border-radius: 2px;
+}
+
+/* =========================================================
+   TARJETAS
+   ========================================================= */
+
 .card-perfil {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 18px;
 
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 13px;
+
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.05);
+  box-sizing: border-box;
 }
+
+/* Títulos de cada sección */
+
+.card-perfil h2 {
+  margin: 0 0 4px;
+  color: var(--negro);
+  font-size: 18px;
+  font-weight: 650;
+}
+
+/* Pequeña línea verde */
+
+.card-perfil h2::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  margin-right: 9px;
+  vertical-align: -3px;
+  background: var(--verde-principal);
+  border-radius: 2px;
+}
+
+/* =========================================================
+   INPUTS Y SELECT
+   ========================================================= */
 
 .card-perfil input,
 .card-perfil select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+
+  box-sizing: border-box;
+
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 7px;
+
+  color: var(--negro);
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.card-perfil button {
-  background: #2e7d32;
+.card-perfil input::placeholder {
+  color: #98a2b3;
+}
+
+.card-perfil input:focus,
+.card-perfil select:focus {
+  border-color: var(--verde-principal);
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+/* =========================================================
+   BOTONES PRINCIPALES
+   ========================================================= */
+
+.card-perfil > button {
+  width: 100%;
+  min-height: 42px;
+
+  background: var(--verde-principal);
   color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
+
+  border: 1px solid var(--verde-principal);
+  border-radius: 7px;
+
+  padding: 10px 16px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
-.card-perfil button:hover {
-  background: #1b5e20;
+.card-perfil > button:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
 }
+
+/* =========================================================
+   LISTA DE USUARIOS
+   ========================================================= */
 
 .usuarios-lista {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
+  margin-top: 2px;
 }
 
 .usuario-item {
@@ -47,38 +175,354 @@
   justify-content: space-between;
   align-items: center;
 
-  padding: 12px;
-  border-radius: 10px;
-  background: #f5f5f5;
+  gap: 16px;
+
+  padding: 14px 16px;
+
+  background: #fafbfa;
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+
+  box-sizing: border-box;
+}
+
+/* Información del usuario */
+
+.usuario-item > div {
+  min-width: 0;
+}
+
+.usuario-item strong {
+  display: block;
+  color: var(--negro);
+  font-size: 15px;
+  font-weight: 650;
 }
 
 .usuario-item p {
   margin: 4px 0;
+  color: var(--gris-texto);
+  font-size: 13px;
 }
+
+.usuario-item span {
+  display: inline-block;
+
+  padding: 3px 8px;
+
+  background: var(--verde-suave);
+  color: var(--verde-oscuro);
+
+  border-radius: 4px;
+
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* =========================================================
+   BOTONES DE ESTADO
+   ========================================================= */
+
+.usuario-item button {
+  flex-shrink: 0;
+
+  min-width: 105px;
+  min-height: 38px;
+
+  padding: 8px 12px;
+
+  border: none;
+  border-radius: 6px;
+
+  color: white;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* Desactivar */
 
 .btn-desactivar {
-  background: #d32f2f !important;
+  background: var(--rojo) !important;
 }
 
-.btn-activar {
-  background: #2e7d32 !important;
+.btn-desactivar:hover {
+  background: #a93226 !important;
 }
+
+/* Activar */
+
+.btn-activar {
+  background: var(--verde-principal) !important;
+}
+
+.btn-activar:hover {
+  background: var(--verde-oscuro) !important;
+}
+
+/* Cuenta actual */
+
+.btn-bloqueado {
+  background: #e4e7e5 !important;
+  color: #7a8280 !important;
+  border: 1px solid #d4d9d6 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 25, 20, 0.58);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+}
+
+/* Contenido del modal */
+
+.modal-content {
+  width: 100%;
+  max-width: 430px;
+
+  background: white;
+
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+
+  padding: 26px;
+
+  box-sizing: border-box;
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+}
+
+/* Título del modal */
+
+.modal-content h2 {
+  margin: 0 0 22px;
+
+  color: var(--negro);
+
+  font-size: 19px;
+  line-height: 1.4;
+}
+
+/* Barra verde superior */
+
+.modal-content::before {
+  content: "";
+  display: block;
+
+  width: 38px;
+  height: 3px;
+
+  margin-bottom: 17px;
+
+  background: var(--verde-principal);
+  border-radius: 2px;
+}
+
+/* =========================================================
+   ACCIONES DEL MODAL
+   ========================================================= */
+
+.acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.acciones button {
+  flex: 1;
+
+  min-height: 40px;
+
+  border: none;
+  border-radius: 7px;
+
+  padding: 9px 14px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* Primer botón = confirmar */
+
+.acciones button:first-child {
+  background: var(--verde-principal);
+  color: white;
+}
+
+.acciones button:first-child:hover {
+  background: var(--verde-oscuro);
+}
+
+/* Segundo botón = cancelar */
+
+.acciones button:last-child {
+  background: #eef0ef;
+  color: var(--negro);
+  border: 1px solid var(--gris-borde);
+}
+
+.acciones button:last-child:hover {
+  background: #e3e7e5;
+}
+
+/* =========================================================
+   BOTONES DESHABILITADOS
+   ========================================================= */
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE TABLET
+   ========================================================= */
 
 @media (max-width: 768px) {
 
+  .perfil-container {
+    padding: 22px 16px 32px;
+  }
+
+  .perfil-container > h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-perfil {
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+
+  .usuario-item {
+    align-items: flex-start;
+  }
+
+  .usuario-item button {
+    min-width: 100px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE CELULAR
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+  .perfil-container {
+    padding: 18px 12px 28px;
+  }
+
+  .perfil-container > h1 {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+
+  .card-perfil {
+    padding: 17px;
+    border-radius: 8px;
+  }
+
+  .card-perfil h2 {
+    font-size: 17px;
+  }
+
+  .card-perfil h2::before {
+    height: 16px;
+  }
+
+  .card-perfil input,
+  .card-perfil select {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .card-perfil > button {
+    min-height: 44px;
+  }
+
+  /* Usuarios */
+
   .usuario-item {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
   }
 
   .usuario-item button {
     width: 100%;
+    min-height: 40px;
   }
 
+  /* Modal */
+
+  .modal {
+    padding: 14px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    padding: 21px;
+    border-radius: 9px;
+  }
+
+  .modal-content h2 {
+    font-size: 17px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .acciones button {
+    width: 100%;
+    min-height: 43px;
+  }
 }
-.btn-bloqueado {
-  background: #ccc;
-  color: #666;
-  cursor: not-allowed;
+
+/* =========================================================
+   CELULAR MUY PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .perfil-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card-perfil {
+    padding: 15px;
+  }
+
+  .perfil-container > h1 {
+    font-size: 21px;
+  }
 }

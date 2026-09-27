@@ -526,7 +526,7 @@ function Ventas({ setIsAuth }) {
           <option value="">Todas las categorías</option>
           {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
         </select>
-        <input type="text" placeholder="🔍 Buscar producto..." className="input-buscador"
+        <input type="text" placeholder="Buscar producto..." className="input-buscador"
           value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
       </div>
 
@@ -542,7 +542,6 @@ function Ventas({ setIsAuth }) {
               <span className="codigo">{p.categoria || "Sin categoría"}</span>
             </div>
             <div className="stock">
-              <span className="stock-label">Stock</span>
               <span className="stock-valor">{p.stock}</span>
             </div>
             <div className="precios">

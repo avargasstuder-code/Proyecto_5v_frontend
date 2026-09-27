@@ -49,6 +49,9 @@ export default function Clientes() {
   const [mostrarEditarSucursal, setMostrarEditarSucursal] = useState(false);
   const [sucursalEditar, setSucursalEditar] = useState(null);
 
+  // Evita encimar peticiones si se tocan las flechas de orden rápido
+  const [guardandoOrden, setGuardandoOrden] = useState(false);
+
   // SUCURSALES (vista por día)
   useEffect(() => {
 
@@ -94,6 +97,48 @@ export default function Clientes() {
   const sucursalesFiltradas = diaSeleccionado
     ? sucursales.filter(s => s.dia === diaSeleccionado)
     : [];
+
+  // Mueve una sucursal un lugar arriba (-1) o abajo (+1) dentro del
+  // día actual, y guarda el nuevo orden en el backend
+  const moverSucursal = async (sucursal, direccion) => {
+    // Si ya hay un guardado en curso, ignoramos el clic: evita mandar
+    // varias peticiones encimadas que se pisen entre sí
+    if (guardandoOrden) return;
+
+    const lista = sucursalesFiltradas;
+    const index = lista.findIndex(s => s.id === sucursal.id);
+    const nuevoIndex = index + direccion;
+
+    if (nuevoIndex < 0 || nuevoIndex >= lista.length) return;
+
+    const nuevaLista = [...lista];
+    [nuevaLista[index], nuevaLista[nuevoIndex]] = [nuevaLista[nuevoIndex], nuevaLista[index]];
+
+    setGuardandoOrden(true);
+    try {
+      await api.put("/sucursales/orden-visita", { ids: nuevaLista.map(s => s.id) });
+      const res = await api.get("/sucursales");
+      setSucursales(res.data);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cambiar el orden");
+    } finally {
+      setGuardandoOrden(false);
+    }
+  };
+
+  // Marca/desmarca "ya pasé por acá" (no bloquea vender igual)
+  const toggleVisitado = async (sucursal, e) => {
+    e.stopPropagation();
+    try {
+      await api.post(`/sucursales/${sucursal.id}/toggle-visitado`);
+      const res = await api.get("/sucursales");
+      setSucursales(res.data);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo marcar como visitado");
+    }
+  };
 
   // FILTRO DEL LISTADO COMPLETO (por nombre, apellido, RUT o dirección)
   const sucursalesListadoFiltradas = sucursalesTodas.filter(s => {
@@ -398,7 +443,7 @@ export default function Clientes() {
 
           <input
             type="text"
-            placeholder="🔍 Buscar por nombre, RUT o dirección..."
+            placeholder="Buscar por nombre, RUT o dirección..."
             className="input-buscador"
             value={busquedaListado}
             onChange={(e) => setBusquedaListado(e.target.value)}
@@ -427,7 +472,7 @@ export default function Clientes() {
                 </div>
 
                 <div className="acciones-cliente-listado">
-                  <button onClick={() => abrirEditar(s)}>Editar</button>
+                  <button className="btn-editar" onClick={() => abrirEditar(s)}>Editar</button>
                   <button
                     className={s.activo ? "btn-desactivar" : "btn-activar"}
                     onClick={() => toggleActivo(s)}
@@ -460,15 +505,34 @@ export default function Clientes() {
 
           <div className="grid-clientes">
 
-            {sucursalesFiltradas.map(s => (
+            {sucursalesFiltradas.map((s, index) => (
 
               <div
                 key={s.id}
-                className={`cliente-click ${s.deuda_pendiente > 0 ? "cliente-con-deuda" : ""}`}
+                className={`cliente-click ${s.deuda_pendiente > 0 ? "cliente-con-deuda" : ""} ${s.visitado_hoy ? "cliente-visitado" : ""}`}
                 onClick={() => setSucursalSeleccionada(s)}
               >
 
-                <h3>{s.nombre} {s.apellido}</h3>
+                <div className="cliente-click-header">
+                  <h3>{s.nombre} {s.apellido}</h3>
+
+                  <div className="orden-visita-controles">
+                    <button
+                      type="button"
+                      disabled={index === 0 || guardandoOrden}
+                      onClick={(e) => { e.stopPropagation(); moverSucursal(s, -1); }}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === sucursalesFiltradas.length - 1 || guardandoOrden}
+                      onClick={(e) => { e.stopPropagation(); moverSucursal(s, 1); }}
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
 
                 <p>{s.rut}</p>
 
@@ -480,6 +544,24 @@ export default function Clientes() {
                   <p className="aviso-deuda-tarjeta">
                     ⚠️ Debe ${formatoCLP(s.deuda_pendiente)}
                   </p>
+                )}
+
+                {s.visitado_hoy ? (
+                  <button
+                    type="button"
+                    className="badge-visitado"
+                    onClick={(e) => toggleVisitado(s, e)}
+                  >
+                    ✔ Ya pasé (tocar para deshacer)
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-marcar-visitado"
+                    onClick={(e) => toggleVisitado(s, e)}
+                  >
+                    Marcar visitado
+                  </button>
                 )}
 
               </div>

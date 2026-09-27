@@ -1,148 +1,281 @@
+/* =========================================================
+   CIERRE / MÉTODO DE PAGO
+   Estilo corporativo
+   ========================================================= */
+
+:root {
+  --verde: #176b3a;
+  --verde-oscuro: #0f4d2b;
+  --verde-suave: #eaf4ee;
+
+  --negro: #1f2933;
+  --texto: #344054;
+  --gris: #667085;
+  --gris-claro: #f5f7f6;
+  --borde: #d9e0dc;
+
+  --blanco: #ffffff;
+  --rojo: #c0392b;
+
+  --radio: 8px;
+  --sombra: 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+
+/* =========================================================
+   CONTENEDOR GENERAL
+   ========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px;
+  box-sizing: border-box;
+}
+
+.container h1 {
+  margin: 0 0 24px;
+  color: var(--negro);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.container h2 {
+  color: var(--negro);
+  font-size: 21px;
+  margin: 0 0 18px;
+}
+
+.container h3 {
+  color: var(--negro);
+}
+
+
+/* =========================================================
+   PESTAÑAS
+   ========================================================= */
+
 .cierre-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--borde);
 }
 
 .cierre-tabs button {
   flex: 1;
-  padding: 10px;
+  padding: 12px 18px;
+
   border: none;
-  background: white;
-  color: #2e7d32;
-  border-radius: 8px;
-  font-weight: bold;
+  border-bottom: 2px solid transparent;
+
+  border-radius: 0;
+
+  background: transparent;
+  color: var(--gris);
+
+  font-size: 14px;
+  font-weight: 600;
+
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: none;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .cierre-tabs button:hover {
-  background: #f0f0f0;
+  background: var(--gris-claro);
+  color: var(--verde);
 }
 
 .cierre-tabs button.activo {
-  background: #2e7d32;
-  color: white;
+  background: var(--blanco);
+  color: var(--verde);
+  border-bottom-color: var(--verde);
 }
+
+
+/* =========================================================
+   FECHA
+   ========================================================= */
 
 .cierre-fecha {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 14px;
+
+  margin-bottom: 22px;
+  padding: 16px;
+
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
 }
 
 .cierre-fecha label {
-  font-weight: bold;
+  color: var(--negro);
   font-size: 14px;
-}
-
-.cierre-fecha input[type="date"] {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  background: white;
+  font-weight: 600;
 }
 
 .selector-fecha {
   display: flex;
+  gap: 8px;
   flex-wrap: wrap;
-  gap: 6px;
 }
 
 .selector-fecha select {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  min-width: 100px;
+
+  padding: 9px 11px;
+
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+
+  background: var(--blanco);
+  color: var(--texto);
+
   font-size: 14px;
-  background: white;
-  color: #222;
-  -webkit-appearance: menulist;
-  appearance: menulist;
-  min-width: 90px;
-  flex: 1 1 auto;
+
   cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-@media (max-width: 480px) {
-  .selector-fecha select {
-    padding: 8px 6px;
-    font-size: 13px;
-    min-width: 78px;
-  }
+.selector-fecha select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
 }
+
+
+/* =========================================================
+   RESUMEN RÁPIDO
+   ========================================================= */
 
 .cierre-resumen-rapido {
+  margin: 0 0 14px;
+
+  color: var(--gris);
   font-size: 14px;
-  color: #444;
-  margin-bottom: 12px;
 }
 
 .badge-pendiente {
-  color: #c0392b;
-  font-weight: bold;
+  color: var(--rojo);
+  font-weight: 600;
 }
 
-/* ── LISTA DE VENTAS PARA DEFINIR PAGO ── */
+
+/* =========================================================
+   LISTA DE VENTAS
+   ========================================================= */
 
 .lista-cierre {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .fila-cierre {
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 18px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.fila-cierre:hover {
+  border-color: #bfd2c5;
+  box-shadow: 0 3px 8px rgba(16, 24, 40, 0.08);
 }
 
 .fila-cierre.guardado {
-  box-shadow: 0 2px 6px rgba(46,125,50,0.15);
-  border: 1px solid #c8e6c9;
+  border-color: #b9d8c4;
+  box-shadow: none;
 }
 
 .fila-cierre-info {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 14px;
 }
 
 .fila-cierre-info .cliente {
-  font-weight: bold;
+  color: var(--negro);
   font-size: 15px;
+  font-weight: 600;
 }
 
 .fila-cierre-info .monto {
-  font-weight: bold;
-  color: #2e7d32;
+  color: var(--verde);
+  font-size: 16px;
+  font-weight: 700;
 }
 
-.fila-cierre-info .estado-guardado {
-  font-size: 13px;
-  color: #2e7d32;
-  width: 100%;
-}
+
+/* =========================================================
+   CONTROLES
+   ========================================================= */
 
 .fila-cierre-controles {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fila-cierre-controles select,
+.dias-plazo input[type="number"] {
+  min-height: 38px;
+
+  padding: 8px 11px;
+
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+
+  background: var(--blanco);
+  color: var(--texto);
+
+  font-size: 14px;
+
+  box-sizing: border-box;
+  outline: none;
 }
 
 .fila-cierre-controles select {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  min-width: 160px;
-  background: white;
+  min-width: 180px;
 }
+
+.fila-cierre-controles select:focus,
+.dias-plazo input[type="number"]:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   DÍAS DE PLAZO
+   ========================================================= */
 
 .dias-plazo {
   display: flex;
@@ -151,121 +284,356 @@
 }
 
 .dias-plazo button {
-  padding: 6px 10px;
-  border: none;
-  background: #ccc;
-  border-radius: 8px;
+  min-height: 34px;
+
+  padding: 7px 11px;
+
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+
+  background: var(--gris-claro);
+  color: var(--texto);
+
   font-size: 13px;
+  font-weight: 600;
+
   cursor: pointer;
 }
 
 .dias-plazo button:hover {
-  background: #b5b5b5;
+  background: var(--verde-suave);
+  border-color: #b9d8c4;
+  color: var(--verde);
 }
 
 .dias-plazo input[type="number"] {
-  width: 70px;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 13px;
+  width: 75px;
 }
+
+
+/* =========================================================
+   BOTÓN GUARDAR
+   ========================================================= */
 
 .btn-guardar-fila {
   margin-left: auto;
-  padding: 8px 16px;
-  background: #2e7d32;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
 
-.btn-guardar-fila:disabled {
-  opacity: 0.6;
-  cursor: default;
+  min-height: 38px;
+
+  padding: 8px 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
 }
 
 .btn-guardar-fila:hover:not(:disabled) {
-  background: #1b5e20;
+  background: var(--verde-oscuro);
 }
 
-/* ── RESUMEN / CUADRE ── */
+.btn-guardar-fila:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+
+/* =========================================================
+   RESUMEN / CUADRE
+   ========================================================= */
 
 .resumen-cuadre {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
+
+
+/*
+   Cada método de pago es UNA SOLA FILA.
+   No se crean cuadros internos.
+*/
 
 .fila-resumen {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 140px 160px;
   align-items: center;
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  font-size: 15px;
+
+  min-height: 54px;
+  padding: 0 18px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  font-size: 14px;
+
+  box-sizing: border-box;
 }
 
+
+/* =========================================================
+   ELEMENTOS INTERNOS
+   Importante: transparentes para evitar
+   "cuadros dentro de cuadros"
+   ========================================================= */
+
 .fila-resumen .metodo {
-  font-weight: bold;
-  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  color: var(--negro);
+  font-weight: 600;
 }
 
 .fila-resumen .cantidad {
-  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  color: var(--gris);
   text-align: center;
-  color: #666;
-  font-size: 13px;
 }
 
 .fila-resumen .monto {
-  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  color: var(--verde);
   text-align: right;
-  font-weight: bold;
-  color: #2e7d32;
+  font-weight: 700;
 }
+
+
+/* =========================================================
+   HOVER DE LAS FILAS NORMALES
+   ========================================================= */
+
+.fila-resumen:not(.fila-total):hover {
+  border-color: #bfd2c5;
+  box-shadow: 0 3px 8px rgba(16, 24, 40, 0.08);
+}
+
+
+/* =========================================================
+   TOTAL DEL DÍA
+   ========================================================= */
 
 .fila-resumen.fila-total {
-  background: #2e7d32;
-  margin-top: 6px;
+  margin-top: 8px;
+
+  min-height: 56px;
+
+  background: var(--verde) !important;
+  border: 1px solid var(--verde) !important;
+
+  color: var(--blanco) !important;
+
+  box-shadow: none;
 }
 
-.fila-resumen.fila-total .metodo,
+
+/* Todo lo que está dentro del total
+   hereda el verde de la fila */
+
+.fila-resumen.fila-total > * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.fila-resumen.fila-total .metodo {
+  color: var(--blanco) !important;
+  font-weight: 700;
+}
+
+.fila-resumen.fila-total .cantidad {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
 .fila-resumen.fila-total .monto {
-  color: rgba(6, 6, 6);
+  color: var(--blanco) !important;
+  font-weight: 800;
 }
 
-/* ── RESPONSIVE CELULAR ── */
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
 @media (max-width: 768px) {
+
+  .container {
+    padding: 20px 16px;
+  }
+
+  .container h1 {
+    font-size: 23px;
+  }
+
+
+  /* Pestañas */
+
+  .cierre-tabs button {
+    padding: 11px 8px;
+    font-size: 13px;
+  }
+
+
+  /* Fecha */
+
+  .cierre-fecha {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .selector-fecha {
+    width: 100%;
+  }
+
+  .selector-fecha select {
+    flex: 1;
+    min-width: 0;
+  }
+
+
+  /* Ventas */
+
+  .fila-cierre {
+    padding: 15px;
+  }
+
+  .fila-cierre-info {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
   .fila-cierre-controles {
     flex-direction: column;
     align-items: stretch;
   }
 
   .fila-cierre-controles select {
+    width: 100%;
     min-width: 0;
   }
 
-  .btn-guardar-fila {
-    margin-left: 0;
-  }
-
   .dias-plazo {
+    width: 100%;
     flex-wrap: wrap;
   }
 
-  .fila-resumen {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+  .dias-plazo input[type="number"] {
+    flex: 1;
   }
 
-  .fila-resumen .cantidad,
-  .fila-resumen .monto {
+  .btn-guardar-fila {
+    width: 100%;
+    margin-left: 0;
+  }
+
+
+  /* =====================================================
+     RESUMEN EN CELULAR
+     ===================================================== */
+
+  .fila-resumen {
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+
+    align-items: center;
+
+    gap: 4px 12px;
+
+    padding: 12px 16px;
+
+    min-height: 54px;
+  }
+
+  .fila-resumen .metodo {
+    grid-column: 1;
+    grid-row: 1;
+
     text-align: left;
+  }
+
+  .fila-resumen .cantidad {
+    grid-column: 1;
+    grid-row: 2;
+
+    text-align: left;
+
+    font-size: 13px;
+  }
+
+  .fila-resumen .monto {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+
+    text-align: right;
+  }
+
+
+  /* Total */
+
+  .fila-resumen.fila-total {
+    min-height: 54px;
+  }
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .container {
+    padding: 16px 12px;
+  }
+
+  .cierre-tabs button {
+    font-size: 12px;
+  }
+
+  .selector-fecha select {
+    font-size: 13px;
+    padding: 8px 7px;
+  }
+
+  .fila-cierre-info .cliente {
+    font-size: 14px;
+  }
+
+  .fila-resumen {
+    padding: 12px 14px;
+  }
+
+  .fila-resumen .metodo {
+    font-size: 13px;
+  }
+
+  .fila-resumen .cantidad {
+    font-size: 12px;
+  }
+
+  .fila-resumen .monto {
+    font-size: 13px;
   }
 }

@@ -1,132 +1,500 @@
+/* =========================================================
+   HISTORIAL DE VENTAS
+   Estilo corporativo - verde / negro / blanco
+   ========================================================= */
+
+:root {
+  --verde-principal: #176b3a;
+  --verde-oscuro: #0f4d2b;
+  --verde-suave: #eaf4ee;
+
+  --negro: #1f2933;
+  --gris-texto: #667085;
+  --gris-borde: #d9e0dc;
+  --gris-fondo: #f5f7f6;
+
+  --blanco: #ffffff;
+  --rojo: #c0392b;
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+
 body {
-  background: #f5f5f5;
+  background: var(--gris-fondo);
   font-family: Arial, sans-serif;
+  color: var(--negro);
 }
 
 .container {
-  padding: 15px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* TABLA */
+h1 {
+  color: var(--negro);
+  font-size: 28px;
+  margin: 0 0 22px;
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--negro);
+}
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.input-buscador {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+  margin-bottom: 20px;
+
+  border: 1px solid var(--gris-borde);
+  border-radius: 7px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  font-size: 14px;
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input-buscador::placeholder {
+  color: #98a2b3;
+}
+
+.input-buscador:focus {
+  border-color: var(--verde-principal);
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
 table {
   width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: 9px;
+
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.05);
 }
+
+/* Encabezado */
 
 thead {
-  background: #2e7d32;
-  color: white;
+  background: var(--verde-oscuro);
+  color: var(--blanco);
 }
 
-th,
-td {
-  padding: 14px;
+th {
+  padding: 13px 16px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+td {
+  padding: 13px 16px;
+  text-align: left;
+
+  font-size: 14px;
+  color: var(--negro);
+
+  border-bottom: 1px solid #edf0ee;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr {
+  transition: background-color 0.15s ease;
 }
 
 tbody tr:hover {
-  background: #f9f9f9;
+  background: #f8faf9;
 }
 
-/* BOTONES */
+/* Total */
+
+tbody td:nth-child(4) {
+  font-weight: 700;
+  color: var(--verde-oscuro);
+}
+
+/* =========================================================
+   BOTONES DE TABLA
+   ========================================================= */
+
 table button {
-  background: #2e7d32;
-  color: white;
+  background: var(--verde-principal);
+  color: var(--blanco);
+
   border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 7px 14px;
+
+  border-radius: 6px;
+
+  font-size: 13px;
+  font-weight: 600;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 table button:hover {
-  background: #1b5e20;
+  background: var(--verde-oscuro);
 }
 
-/* MODAL */
+table button:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+
+  background: rgba(15, 23, 20, 0.58);
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  padding: 15px;
-  z-index: 999;
+  padding: 20px;
+
+  z-index: 9999;
 }
 
-/* BOLETA */
+/* =========================================================
+   BOLETA / DETALLE
+   ========================================================= */
+
 .boleta {
-  background: white;
+  background: var(--blanco);
+
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
+
   max-height: 90vh;
   overflow-y: auto;
 
-  border-radius: 12px;
-  padding: 20px;
   box-sizing: border-box;
+
+  border-radius: 10px;
+  border: 1px solid var(--gris-borde);
+
+  padding: 24px;
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+
+  animation: aparecerBoleta 0.18s ease;
+}
+
+@keyframes aparecerBoleta {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .boleta h2 {
   text-align: center;
-  margin-bottom: 15px;
+
+  margin: 0 0 22px;
+
+  color: var(--negro);
+  font-size: 22px;
 }
 
 .boleta p {
   margin: 8px 0;
+
+  color: var(--gris-texto);
+
+  font-size: 14px;
+
   word-break: break-word;
 }
 
-.boleta-item {
-  display: grid;
-  grid-template-columns: 2fr 1fr auto auto;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-  align-items: center;
+.boleta p b {
+  color: var(--negro);
 }
 
-/* BOTONES BOLETA */
+.boleta hr {
+  border: none;
+  border-top: 1px solid var(--gris-borde);
+
+  margin: 17px 0;
+}
+
+/* =========================================================
+   PRODUCTOS DE LA BOLETA
+   ========================================================= */
+
+.boleta-item {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr auto auto;
+
+  gap: 10px;
+
+  padding: 11px 0;
+
+  border-bottom: 1px solid #edf0ee;
+
+  align-items: center;
+
+  font-size: 13px;
+}
+
+.boleta-item:last-child {
+  border-bottom: none;
+}
+
+.boleta-item strong {
+  color: var(--negro);
+  font-size: 14px;
+}
+
+.boleta-item span {
+  color: var(--gris-texto);
+}
+
+.boleta h3 {
+  text-align: right;
+
+  margin: 16px 0;
+
+  color: var(--verde-oscuro);
+
+  font-size: 20px;
+}
+
+/* =========================================================
+   BOTONES BOLETA
+   ========================================================= */
+
 .acciones-boleta {
   display: flex;
+
   gap: 10px;
-  margin-top: 15px;
+
+  margin-top: 20px;
 }
 
 .acciones-boleta button {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
+
+  padding: 10px 14px;
+
+  border-radius: 7px;
+
   border: none;
+
   cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: background-color 0.2s ease;
 }
 
 .btn-cerrar {
-  background: #ccc;
+  background: #eef0ef;
+  color: var(--negro);
 }
 
 .btn-cerrar:hover {
-  background: #b5b5b5;
+  background: #dfe3e1;
 }
 
 .btn-imprimir {
-  background: #2e7d32;
-  color: white;
+  background: var(--verde-principal);
+  color: var(--blanco);
 }
 
 .btn-imprimir:hover {
-  background: #1b5e20;
+  background: var(--verde-oscuro);
 }
 
-/* RESPONSIVE CELULAR */
+/* =========================================================
+   BOTONES DESHABILITADOS
+   ========================================================= */
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   FORMATO TÉRMICA 58mm
+   No modificar: utilizado para generar PDF
+   ========================================================= */
+
+.boleta-58mm {
+  font-family: monospace;
+
+  width: 100%;
+
+  padding: 8px;
+
+  box-shadow: none;
+  border-radius: 0;
+
+  background: white;
+}
+
+.boleta-58mm h2 {
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 6px 0;
+}
+
+.boleta-58mm p {
+  font-size: 10px;
+  margin: 2px 0;
+  word-break: break-word;
+}
+
+.boleta-58mm hr {
+  border: none;
+  border-top: 1px dashed #000;
+  margin: 6px 0;
+}
+
+.boleta-58mm .boleta-item {
+  display: flex;
+  flex-direction: column;
+
+  font-size: 10px;
+
+  margin-bottom: 4px;
+
+  gap: 1px;
+}
+
+.boleta-58mm .boleta-item strong {
+  font-size: 11px;
+}
+
+.boleta-58mm h3 {
+  font-size: 12px;
+
+  margin: 6px 0;
+
+  text-align: right;
+}
+
+/* =========================================================
+   FORMATO OFICIO
+   No modificar: utilizado para generar PDF
+   ========================================================= */
+
+.boleta-oficio {
+  font-family: Arial, sans-serif;
+
+  background: white;
+
+  box-shadow: none;
+  border-radius: 0;
+
+  padding: 10px;
+}
+
+.boleta-oficio h2 {
+  font-size: 22px;
+  margin: 0 0 18px 0;
+}
+
+.boleta-oficio p {
+  font-size: 15px;
+  margin: 6px 0;
+}
+
+.boleta-oficio hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 14px 0;
+}
+
+.boleta-oficio .boleta-item {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr auto auto;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #eee;
+}
+
+.boleta-oficio .boleta-item strong {
+  font-size: 15px;
+}
+
+.boleta-oficio h3 {
+  font-size: 18px;
+
+  margin: 14px 0;
+
+  text-align: right;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
 @media (max-width: 768px) {
+
+  .container {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  .input-buscador {
+    max-width: 100%;
+  }
+
+  /* Ocultar encabezado de tabla */
 
   table,
   thead,
@@ -143,29 +511,46 @@ table button:hover {
 
   tbody {
     display: flex;
+
     flex-direction: column;
-    gap: 12px;
+
+    gap: 10px;
   }
 
   tr {
-    background: white;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    background: var(--blanco);
+
+    border: 1px solid var(--gris-borde);
+
+    border-radius: 9px;
+
+    padding: 12px 14px;
+
+    box-shadow: 0 2px 7px rgba(31, 41, 51, 0.05);
   }
 
   td {
     border: none;
+
     padding: 6px 0;
 
     display: flex;
+
     justify-content: space-between;
-    gap: 10px;
+
+    align-items: center;
+
+    gap: 15px;
+
+    font-size: 13px;
   }
 
   td::before {
-    font-weight: bold;
-    color: #2e7d32;
+    font-weight: 700;
+
+    color: var(--gris-texto);
+
+    font-size: 12px;
   }
 
   td:nth-child(1)::before {
@@ -192,27 +577,57 @@ table button:hover {
     content: "Detalle";
   }
 
-  /* MODAL RESPONSIVE */
+  td:nth-child(6) {
+    padding-top: 10px;
+
+    margin-top: 4px;
+
+    border-top: 1px solid #edf0ee;
+  }
+
+  td:nth-child(6)::before {
+    display: none;
+  }
+
+  td:nth-child(6) button {
+    width: 100%;
+  }
+
+  /* Modal */
+
+  .modal {
+    padding: 12px;
+  }
 
   .boleta {
     width: 100%;
+
     max-width: 100%;
-    max-height: 90vh;
-    padding: 15px;
-    border-radius: 12px;
+
+    max-height: 92vh;
+
+    padding: 20px;
+
+    border-radius: 9px;
+  }
+
+  .boleta h2 {
+    font-size: 20px;
   }
 
   .boleta-item {
     display: flex;
+
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 4px;
   }
 
-  .boleta-item span,
-  .boleta-item strong {
+  .boleta-item strong,
+  .boleta-item span {
     width: 100%;
-    word-break: break-word;
   }
 
   .acciones-boleta {
@@ -222,94 +637,4 @@ table button:hover {
   .acciones-boleta button {
     width: 100%;
   }
-}
-/* ===== FORMATO IMPRESORA TÉRMICA 58mm ===== */
-/* Se aplica solo al clon usado para generar el PDF de descarga */
-.boleta-58mm {
-  font-family: monospace;
-  width: 100%;
-  padding: 8px;
-  box-shadow: none;
-  border-radius: 0;
-  background: white;
-}
-
-.boleta-58mm h2 {
-  font-size: 13px;
-  text-align: center;
-  margin: 0 0 6px 0;
-}
-
-.boleta-58mm p {
-  font-size: 10px;
-  margin: 2px 0;
-  word-break: break-word;
-}
-
-.boleta-58mm hr {
-  border: none;
-  border-top: 1px dashed #000;
-  margin: 6px 0;
-}
-
-.boleta-58mm .boleta-item {
-  display: flex;
-  flex-direction: column;
-  font-size: 10px;
-  margin-bottom: 4px;
-  gap: 1px;
-}
-
-.boleta-58mm .boleta-item strong {
-  font-size: 11px;
-}
-
-.boleta-58mm h3 {
-  font-size: 12px;
-  margin: 6px 0;
-  text-align: right;
-}
-/* ===== FORMATO OFICIO (para imprimir en hoja completa) ===== */
-/* Se aplica solo al clon usado para generar el PDF de descarga */
-.boleta-oficio {
-  font-family: Arial, sans-serif;
-  background: white;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 10px;
-}
-
-.boleta-oficio h2 {
-  font-size: 22px;
-  margin: 0 0 18px 0;
-}
-
-.boleta-oficio p {
-  font-size: 15px;
-  margin: 6px 0;
-}
-
-.boleta-oficio hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 14px 0;
-}
-
-.boleta-oficio .boleta-item {
-  display: grid;
-  grid-template-columns: 2fr 1fr auto auto;
-  gap: 10px;
-  font-size: 14px;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.boleta-oficio .boleta-item strong {
-  font-size: 15px;
-}
-
-.boleta-oficio h3 {
-  font-size: 18px;
-  margin: 14px 0;
-  text-align: right;
 }

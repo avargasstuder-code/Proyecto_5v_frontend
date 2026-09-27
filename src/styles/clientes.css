@@ -1,446 +1,1225 @@
-.grid-clientes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
+/* =========================================================
+   CLIENTES - ESTILO CORPORATIVO
+   Verde / Negro / Blanco
+   ========================================================= */
+
+:root {
+  --verde: #176B3A;
+  --verde-oscuro: #0F4D2B;
+  --verde-hover: #125A31;
+  --verde-suave: #EAF4EE;
+
+  --negro: #1F2933;
+  --gris-texto: #4B5563;
+  --gris: #667085;
+  --gris-claro: #F5F7F6;
+  --gris-borde: #D9E0DC;
+
+  --blanco: #FFFFFF;
+
+  --rojo: #C0392B;
+  --rojo-suave: #FCECEC;
+
+  --azul: #2563EB;
+  --azul-suave: #EFF6FF;
+
+  --amarillo: #B7791F;
+  --amarillo-suave: #FFF8E7;
+
+  --sombra: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --sombra-hover: 0 5px 14px rgba(15, 23, 42, 0.09);
+
+  --radio: 8px;
+  --radio-pequeno: 6px;
 }
 
-.cliente-click {
-  cursor: pointer;
-  transition: 0.2s;
-}
 
-.cliente-click:hover {
-  transform: scale(1.03);
-}
-
-.panel {
-  background: #fff;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 15px;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
-}
-
-.stock-item {
-  display: grid;
-  grid-template-columns: 1fr auto 80px auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.stock-item input {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.btn-descuento {
-  background: #d32f2f;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-descuento:hover {
-  background: #b71c1c;
-}
-.venta-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.btn-ver {
-  background: #1976d2;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-ver:hover {
-  background: #0d47a1;
-}
-
-body {
-  background: #f5f5f5;
-  font-family: Arial, sans-serif;
-}
+/* =========================================================
+   CONTENEDOR GENERAL
+   ========================================================= */
 
 .container {
-  padding: 15px;
-}
-
-/* BOTONES */
-button {
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* DIAS */
-.grid-ciudades {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card-ciudad {
-  background: #2e7d32;
-  color: white;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.card-ciudad:hover {
-  transform: translateY(-2px);
-  background: #1b5e20;
-}
-
-/* CLIENTES */
-.grid-clientes {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.cliente-click {
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-  cursor: pointer;
-}
-
-.cliente-click h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.cliente-click p {
-  margin: 4px 0;
-  color: #666;
-  font-size: 14px;
-}
-
-/* PANELES */
-.panel {
-  background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-top: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-}
-
-/* ITEMS */
-.item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
-}
-
-.item:last-child {
-  border-bottom: none;
-}
-
-.item span {
-  font-size: 14px;
-}
-
-/* INPUTS */
-input,
-select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
   box-sizing: border-box;
 }
 
-/* STOCK */
-.stock-item input {
-  max-width: 90px;
+.container h1 {
+  margin: 0 0 24px;
+  color: var(--negro);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* BOTONES */
-.btn-vender {
-  width: 100%;
-  margin-top: 15px;
-  background: #2e7d32;
-  color: white;
-  padding: 12px;
-  font-size: 16px;
-}
 
-.btn-vender:hover {
-  background: #1b5e20;
-}
+/* =========================================================
+   BOTONES SUPERIORES
+   ========================================================= */
 
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 15px;
-  z-index: 999;
-}
-
-.boleta {
-  background: white;
-  width: 100%;
-  max-width: 380px;
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.boleta-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 8px 0;
-  font-size: 14px;
-}
-
-/* ACCIONES BOLETA */
-.acciones-boleta {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.acciones-boleta button {
-  flex: 1;
-  padding: 10px;
-}
-
-.btn-cerrar {
-  background: #ccc;
-}
-
-.btn-imprimir {
-  background: #2e7d32;
-  color: white;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .item {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .boleta-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .acciones-boleta {
-    flex-direction: column;
-  }
-
-  .cliente-click h3 {
-    font-size: 16px;
-  }
-}
-.btn-volver {
-  background: #2e7d32;
-  color: white;
-  padding: 10px 14px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-volver:hover {
-  background: #1b5e20;
-}
-.btn-volver {
-  background: #2e7d32;
-  color: white;
-  padding: 10px 14px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-volver:hover {
-  background: #1b5e20;
-}
-.historial-stock-mini {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-left: 28px;
-  margin-top: 4px;
-}
-
-.historial-stock-mini small {
-  color: #666;
-  font-size: 11px;
-}
 .acciones-clientes {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
+.btn-agregar,
 .btn-secundario-clientes {
-  background: white;
-  color: #2e7d32;
-  border: 1px solid #2e7d32;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: var(--radio-pequeno);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+
+/* Botón principal */
+
+.btn-agregar {
+  background: var(--verde);
+  color: var(--blanco);
+  border: 1px solid var(--verde);
+}
+
+.btn-agregar:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+  box-shadow: 0 2px 6px rgba(23, 107, 58, 0.18);
+}
+
+
+/* Botón secundario */
+
+.btn-secundario-clientes {
+  background: var(--blanco);
+  color: var(--negro);
+  border: 1px solid var(--gris-borde);
 }
 
 .btn-secundario-clientes:hover {
-  background: #f0f0f0;
+  background: var(--gris-claro);
+  border-color: #BFC9C3;
 }
 
-/* Listado completo de clientes */
+
+/* =========================================================
+   CIUDADES
+   ========================================================= */
+
+.grid-ciudades {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card-ciudad {
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+  padding: 20px;
+  min-height: 100px;
+  box-sizing: border-box;
+  cursor: pointer;
+  box-shadow: var(--sombra);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.card-ciudad:hover {
+  border-color: var(--verde);
+  box-shadow: var(--sombra-hover);
+  transform: translateY(-1px);
+}
+
+.card-ciudad h3 {
+  margin: 0;
+  color: var(--negro);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.card-ciudad p {
+  margin: 6px 0 0;
+  color: var(--gris);
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTÓN VOLVER
+   ========================================================= */
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 40px;
+  padding: 0 14px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  margin-bottom: 20px;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-volver:hover {
+  background: var(--gris-claro);
+  border-color: #BFC9C3;
+}
+
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.input-buscador {
+  width: 100%;
+  max-width: 520px;
+  height: 42px;
+
+  padding: 0 14px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input-buscador::placeholder {
+  color: #98A2B3;
+}
+
+.input-buscador:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   LISTADO GENERAL DE CLIENTES
+   ========================================================= */
+
 .listado-clientes {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 15px;
 }
 
 .fila-cliente-listado {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  gap: 15px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 16px 18px;
+
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  box-sizing: border-box;
 }
 
 .info-cliente-listado {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 24px;
-  font-size: 14px;
-  flex: 1;
   min-width: 0;
+  flex: 1;
 }
 
 .info-cliente-listado strong {
+  display: block;
+  color: var(--negro);
   font-size: 15px;
-  min-width: 140px;
+  font-weight: 700;
+}
+
+.info-cliente-listado span {
+  display: block;
+  margin-top: 4px;
+  color: var(--gris);
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ESTADOS CLIENTE
+   ========================================================= */
+
+.estado-activo,
+.estado-inactivo {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px 9px;
+  border-radius: 20px;
+
+  font-size: 12px !important;
+  font-weight: 600;
 }
 
 .estado-activo {
-  color: #2e7d32;
-  font-weight: bold;
+  background: var(--verde-suave);
+  color: var(--verde-oscuro);
 }
 
 .estado-inactivo {
-  color: #c62828;
-  font-weight: bold;
+  background: #F2F4F5;
+  color: #667085;
 }
+
+
+/* =========================================================
+   ACCIONES DEL LISTADO
+   ========================================================= */
 
 .acciones-cliente-listado {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.acciones-cliente-listado button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
+.btn-desactivar,
+.btn-activar {
+  min-height: 36px;
+  padding: 0 12px;
+
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
   cursor: pointer;
-  color: white;
-  background: #2e7d32;
-  white-space: nowrap;
 }
 
-.acciones-cliente-listado .btn-desactivar {
-  background: #c62828;
+.btn-desactivar {
+  background: var(--blanco);
+  color: var(--blanco);
+  border: 1px solid #E6B8B5;
 }
 
-.acciones-cliente-listado .btn-activar {
-  background: #2e7d32;
+.btn-desactivar:hover {
+  background: var(--rojo-suave);
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
+.btn-activar {
+  background: var(--verde);
+  color: var(--blanco);
+  border: 1px solid var(--verde);
+}
+
+.btn-activar:hover {
+  background: var(--verde-oscuro);
+}
+
+
+/* =========================================================
+   GRID DE CLIENTES
+   ========================================================= */
+
+.grid-clientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+
+/* =========================================================
+   TARJETA DE CLIENTE
+   ========================================================= */
+
+.cliente-click {
+  position: relative;
+
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+
+  padding: 18px;
+
+  box-shadow: var(--sombra);
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cliente-click:hover {
+  border-color: var(--verde);
+  box-shadow: var(--sombra-hover);
+  transform: translateY(-1px);
+}
+
+
+/* Cliente con deuda */
+
+.cliente-con-deuda {
+  border-left: 4px solid var(--rojo);
+}
+
+
+/* Cliente visitado */
+
+.cliente-visitado {
+  border-left: 4px solid var(--verde);
+}
+
+
+/* =========================================================
+   CABECERA CLIENTE
+   ========================================================= */
+
+.cliente-click-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+.cliente-click-header h3,
+.cliente-click-header strong {
+  margin: 0;
+
+  color: var(--negro);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.cliente-click-header p {
+  margin: 5px 0 0;
+
+  color: var(--gris);
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   DIRECCIÓN
+   ========================================================= */
+
+.direccion-cliente {
+  margin: 8px 0 14px;
+
+  color: var(--gris-texto);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   DEUDA
+   ========================================================= */
+
+.aviso-deuda-tarjeta {
+  margin: 12px 0;
+
+  padding: 11px 12px;
+
+  background: var(--rojo-suave);
+  border: 1px solid #F0C9C6;
+  border-radius: var(--radio-pequeno);
+
+  color: #9F2D24;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   ORDEN DE VISITA
+   ========================================================= */
+
+.orden-visita-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.orden-visita-controles button {
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.orden-visita-controles button:hover {
+  background: var(--gris-claro);
+  border-color: #BFC9C3;
+}
+
+
+/* =========================================================
+   BOTÓN MARCAR VISITADO
+   ========================================================= */
+
+.btn-marcar-visitado {
+  width: 100%;
+  min-height: 38px;
+
+  margin-top: 12px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-marcar-visitado:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+}
+
+
+/* Badge visitado */
+
+.badge-visitado {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 9px;
+
+  background: var(--verde-suave);
+  color: var(--verde-oscuro);
+
+  border: 1px solid #C8E1D2;
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   PANELES
+   ========================================================= */
+
+.panel {
+  background: var(--blanco);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+
+  padding: 20px;
+  margin-bottom: 18px;
+
+  box-shadow: var(--sombra);
+}
+
+.panel h2,
+.panel h3 {
+  margin-top: 0;
+  color: var(--negro);
+  font-weight: 700;
+}
+
+.panel h2 {
+  font-size: 19px;
+}
+
+.panel h3 {
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   PRODUCTOS FRECUENTES
+   ========================================================= */
+
+.producto-frecuente,
+.item,
+.item-frecuente {
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  padding: 13px 14px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PRODUCTOS
+   ========================================================= */
+
+.producto-izquierda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.producto-izquierda strong {
+  color: var(--negro);
+  font-size: 14px;
+}
+
+.producto-izquierda span {
+  color: var(--gris);
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   BOTÓN VENDER
+   ========================================================= */
+
+.btn-vender {
+  min-height: 36px;
+  padding: 0 13px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-vender:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+}
+
+
+/* =========================================================
+   STOCK
+   ========================================================= */
+
+.stock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 13px 14px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+}
+
+.stock-item strong {
+  color: var(--negro);
+  font-size: 14px;
+}
+
+.stock-item span {
+  color: var(--gris);
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTÓN GUARDAR STOCK
+   ========================================================= */
+
+.btn-guardar-stock {
+  min-height: 38px;
+  padding: 0 15px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-guardar-stock:hover {
+  background: var(--verde-oscuro);
+}
+
+
+/* =========================================================
+   BOTÓN DESCUENTO
+   ========================================================= */
+
+.btn-descuento {
+  min-height: 36px;
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--verde-oscuro);
+
+  border: 1px solid #B8D7C4;
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-descuento:hover {
+  background: var(--verde-suave);
+}
+
+
+/* =========================================================
+   VENTAS
+   ========================================================= */
+
+.venta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 14px;
+
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  margin-bottom: 8px;
+}
+
+.venta-item strong {
+  color: var(--negro);
+  font-size: 14px;
+}
+
+.venta-item span {
+  color: var(--gris);
+  font-size: 13px;
+}
+
+/* =========================================================
+   BOTÓN EDITAR
+   ========================================================= */
+
+.btn-editar {
+  min-height: 36px;
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--verde-oscuro);
+
+  border: 1px solid #B8D7C4;
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-editar:hover {
+  background: var(--verde-suave);
+  border-color: var(--verde);
+}
+
+/* =========================================================
+   BOTÓN VER
+   ========================================================= */
+
+.btn-ver {
+  min-height: 34px;
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--verde-oscuro);
+
+  border: 1px solid #B8D7C4;
+  border-radius: var(--radio-pequeno);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-ver:hover {
+  background: var(--verde-suave);
+}
+
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.48);
+
+  z-index: 1000;
+
+  box-sizing: border-box;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+
+  padding: 24px;
+
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.18);
+
+  box-sizing: border-box;
+}
+
+.modal-content h2 {
+  margin: 0 0 20px;
+
+  color: var(--negro);
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.modal-content h3 {
+  color: var(--negro);
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   FORMULARIOS DENTRO DE MODALES
+   ========================================================= */
+
+.modal-content label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--negro);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+
+  min-height: 40px;
+
+  padding: 0 11px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.modal-content textarea {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  resize: vertical;
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+  border-color: var(--verde);
+
+  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   ACCIONES DEL MODAL
+   ========================================================= */
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 22px;
+
+  flex-wrap: wrap;
+}
+
+.acciones button {
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   BOLETA
+   ========================================================= */
+
+.boleta {
+  background: var(--blanco);
+
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+
+  padding: 20px;
+
+  color: var(--negro);
+}
+
+.boleta h2,
+.boleta h3 {
+  color: var(--negro);
+}
+
+.boleta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #EDF0EE;
+
+  color: var(--gris-texto);
+
+  font-size: 13px;
+}
+
+.boleta-item:last-child {
+  border-bottom: none;
+}
+
+.boleta-item strong {
+  color: var(--negro);
+}
+
+
+/* =========================================================
+   ESTILO GENERAL DE LA PÁGINA
+   ========================================================= */
+
+body {
+  margin: 0;
+
+  background: var(--gris-claro);
+
+  color: var(--negro);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .container {
+    padding: 20px;
+  }
+
+  .grid-clientes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-ciudades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+  .container {
+    padding: 14px;
+  }
+
+  .container h1 {
+    font-size: 23px;
+    margin-bottom: 18px;
+  }
+
+
+  /* Botones superiores */
+
   .acciones-clientes {
-    justify-content: stretch;
-  }
-
-  .acciones-clientes button {
-    flex: 1;
-  }
-
-  .fila-cliente-listado {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .info-cliente-listado {
+  .btn-agregar,
+  .btn-secundario-clientes {
+    width: 100%;
+  }
+
+
+  /* Ciudades */
+
+  .grid-ciudades {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .card-ciudad {
+    min-height: 82px;
+    padding: 16px;
+  }
+
+
+  /* Clientes */
+
+  .grid-clientes {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .cliente-click {
+    padding: 16px;
+  }
+
+  /* Listado */
+
+  .fila-cliente-listado {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    align-items: stretch;
+    gap: 12px;
   }
 
   .acciones-cliente-listado {
-    justify-content: stretch;
+    width: 100%;
   }
 
-  .acciones-cliente-listado button {
+  .btn-desactivar,
+  .btn-activar,
+  .btn-editar {
     flex: 1;
   }
-}
-/* Tarjeta del cliente en la lista por día, cuando tiene deuda pendiente */
-.cliente-con-deuda {
-  border: 2px solid #c62828;
-}
- 
-.aviso-deuda-tarjeta {
-  color: #c62828;
-  font-weight: bold;
-  font-size: 13px;
-  margin-top: 6px;
-}
- 
-.aviso-deuda-detalle {
-  background: #fdecea;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 15px;
-  margin-bottom: 12px;
+
+
+  /* Buscador */
+
+  .input-buscador {
+    max-width: none;
+  }
+
+
+  /* Panel */
+
+  .panel {
+    padding: 16px;
+  }
+
+
+  /* Productos */
+
+  .producto-frecuente,
+  .item,
+  .item-frecuente,
+  .stock-item {
+    padding: 12px;
+  }
+
+
+  /* Ventas */
+
+  .venta-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-ver {
+    width: 100%;
+  }
+
+
+  /* Modal */
+
+  .modal {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 50px);
+    padding: 18px;
+    border-radius: 8px;
+  }
+
+  .modal-content h2 {
+    font-size: 19px;
+  }
+
+
+  /* Acciones */
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+
+
+  /* Boleta */
+
+  .boleta {
+    padding: 15px;
+  }
+
+  .boleta-item {
+    font-size: 12px;
+  }
 }
 
-.direccion-cliente {
-  font-size: 13px;
-  color: #555;
-  margin: 2px 0;
+
+/* =========================================================
+   CELULAR PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .container {
+    padding: 10px;
+  }
+
+  .container h1 {
+    font-size: 21px;
+  }
+
+  .cliente-click {
+    padding: 14px;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+
+  .card-ciudad {
+    padding: 14px;
+  }
 }
- 

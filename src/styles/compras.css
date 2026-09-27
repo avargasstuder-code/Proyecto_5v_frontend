@@ -1,69 +1,1449 @@
+/* =========================================================
+   COMPRAS
+   Estilo corporativo
+   Verde / Negro / Blanco
+   ========================================================= */
+
+:root {
+  --verde: #176b3a;
+  --verde-oscuro: #0f4d2b;
+  --verde-suave: #eaf4ee;
+  --verde-borde: #b9d8c4;
+
+  --negro: #1f2933;
+  --texto: #344054;
+  --gris: #667085;
+  --gris-claro: #f5f7f6;
+  --borde: #d9e0dc;
+
+  --blanco: #ffffff;
+
+  --rojo: #c0392b;
+  --rojo-suave: #fcebea;
+
+  --radio: 8px;
+  --radio-pequeno: 6px;
+
+  --sombra: 0 1px 3px rgba(16, 24, 40, 0.08);
+  --sombra-hover: 0 3px 8px rgba(16, 24, 40, 0.08);
+}
+
+
+/* =========================================================
+   CONTENEDOR GENERAL
+   ========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px;
+  box-sizing: border-box;
+}
+
+.container h1 {
+  margin: 0 0 24px;
+
+  color: var(--negro);
+
+  font-size: 26px;
+  font-weight: 700;
+
+  letter-spacing: -0.3px;
+}
+
+.container h2 {
+  margin: 0 0 18px;
+
+  color: var(--negro);
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.container h3 {
+  color: var(--negro);
+}
+
+
+/* =========================================================
+   PESTAÑAS
+   ========================================================= */
+
 .compras-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+
+  gap: 0;
+
+  margin-bottom: 24px;
+
+  border-bottom: 1px solid var(--borde);
 }
 
 .compras-tabs button {
   flex: 1;
-  padding: 10px;
+
+  padding: 12px 18px;
+
+  background: transparent;
+  color: var(--gris);
+
   border: none;
-  background: white;
-  color: #2e7d32;
-  border-radius: 8px;
-  font-weight: bold;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+
+  font-size: 14px;
+  font-weight: 600;
+
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+  box-shadow: none;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .compras-tabs button:hover {
-  background: #f0f0f0;
+  background: var(--gris-claro);
+  color: var(--verde);
 }
 
 .compras-tabs button.activo {
-  background: #2e7d32;
-  color: white;
+  background: var(--blanco);
+
+  color: var(--verde);
+
+  border-bottom-color: var(--verde);
 }
+
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.input-buscador {
+  width: 100%;
+  max-width: 520px;
+
+  height: 42px;
+
+  margin-bottom: 18px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input-buscador::placeholder {
+  color: #98a2b3;
+}
+
+.input-buscador:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   ENCABEZADO DE LISTA
+   ========================================================= */
+
+.header-lista {
+  display: grid;
+
+  grid-template-columns: 1fr 130px 30px 80px;
+
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 10px 18px;
+
+  color: var(--gris);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  box-sizing: border-box;
+}
+
+.header-lista span:last-child {
+  text-align: center;
+}
+
+
+/* =========================================================
+   LISTA DE PRODUCTOS
+   ========================================================= */
+
+.lista-productos {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+/* =========================================================
+   FILA DE PRODUCTO
+   ========================================================= */
+
+.fila-producto {
+  display: grid;
+
+  grid-template-columns: 1fr 130px 30px 80px;
+
+  align-items: center;
+
+  gap: 16px;
+
+  min-height: 64px;
+
+  padding: 12px 18px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.fila-producto:hover {
+  border-color: var(--verde-borde);
+  box-shadow: var(--sombra-hover);
+}
+
+
+/* =========================================================
+   INFORMACIÓN DEL PRODUCTO
+   ========================================================= */
+
+.fila-producto .info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.fila-producto .nombre {
+  color: var(--negro);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fila-producto .codigo {
+  color: var(--gris);
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   STOCK
+   ========================================================= */
+
+.fila-producto .stock {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  text-align: center;
+}
+
+.stock-label {
+  color: var(--gris);
+
+  font-size: 11px;
+}
+
+.stock-valor {
+  color: var(--negro);
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   ACCIONES DE LA LISTA
+   ========================================================= */
+
+.acciones-lista {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acciones-lista button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 21px;
+  font-weight: 500;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.acciones-lista button:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+}
+
+
+/* =========================================================
+   BOTÓN FLOTANTE
+   ========================================================= */
+
+.btn-flotante {
+  position: fixed;
+
+  right: 28px;
+  bottom: 28px;
+
+  min-height: 46px;
+
+  padding: 0 20px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 15px rgba(15, 77, 43, 0.22);
+
+  z-index: 50;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.btn-flotante:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CABECERA DEL CARRITO
+   ========================================================= */
+
+.carrito-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  margin-bottom: 22px;
+}
+
+.carrito-header h1 {
+  margin: 0;
+
+  font-size: 24px;
+}
+
+
+/* =========================================================
+   BOTÓN VOLVER
+   ========================================================= */
+
+.btn-volver {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 0 14px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-volver:hover {
+  background: var(--gris-claro);
+  border-color: #bcc8c1;
+}
+
+
+/* =========================================================
+   LISTA DEL CARRITO
+   ========================================================= */
+
+.carrito-lista {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   ITEM DEL CARRITO
+   ========================================================= */
+
+.item-carrito {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 16px 18px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  box-sizing: border-box;
+}
+
+.item-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.item-nombre {
+  color: var(--negro);
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   CONTROLES DE COMPRA
+   ========================================================= */
 
 .item-controles-compra {
   display: flex;
+
   flex-wrap: wrap;
+
   align-items: flex-end;
+
   gap: 12px;
 }
 
 .campo-compra {
   display: flex;
+
   flex-direction: column;
-  gap: 4px;
+
+  gap: 5px;
 }
 
 .campo-compra label {
+  color: var(--gris);
+
   font-size: 11px;
-  color: #666;
+  font-weight: 600;
 }
 
 .campo-compra input {
-  width: 90px;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  width: 100px;
+
+  height: 38px;
+
+  padding: 0 9px;
+
+  box-sizing: border-box;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+
   text-align: center;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.campo-compra input:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   SUBTOTAL
+   ========================================================= */
 
 .subtotal-compra {
-  font-weight: bold;
-  color: #2e7d32;
-  min-width: 80px;
+  display: flex;
+
+  align-items: center;
+
+  min-width: 100px;
+  min-height: 38px;
+
+  color: var(--verde);
+
+  font-size: 14px;
+  font-weight: 700;
 }
 
+
+/* =========================================================
+   BOTÓN ELIMINAR
+   ========================================================= */
+
+.btn-eliminar {
+  width: 38px;
+  height: 38px;
+
+  padding: 0;
+
+  background: var(--blanco);
+
+  border: 1px solid #e2c1be;
+  border-radius: var(--radio-pequeno);
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  background: var(--rojo-suave);
+  border-color: #dca7a2;
+}
+
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
+
+.total-box {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 56px;
+
+  margin: 16px 0;
+
+  padding: 0 18px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio);
+
+  box-sizing: border-box;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.total-monto {
+  color: var(--blanco);
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   SECCIÓN PROVEEDOR
+   ========================================================= */
+
+.card-seccion {
+  margin-top: 18px;
+  margin-bottom: 18px;
+
+  padding: 20px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  box-sizing: border-box;
+}
+
+.card-seccion h2 {
+  margin-bottom: 14px;
+
+  font-size: 17px;
+}
+
+
+/* =========================================================
+   PROVEEDOR
+   ========================================================= */
+
+.cliente-box {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.input {
+  width: 100%;
+
+  min-height: 42px;
+
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   BOTÓN SECUNDARIO
+   ========================================================= */
+
+.btn-secundario-clientes {
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  white-space: nowrap;
+
+  background: var(--blanco);
+  color: var(--verde-oscuro);
+
+  border: 1px solid var(--verde-borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-secundario-clientes:hover {
+  background: var(--verde-suave);
+}
+
+
+/* =========================================================
+   BOTÓN CONFIRMAR COMPRA
+   ========================================================= */
+
+.btn-vender {
+  width: 100%;
+
+  min-height: 44px;
+
+  padding: 0 18px;
+
+  margin-top: 8px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-vender:hover:not(:disabled) {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+}
+
+.btn-vender:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+
+/* =========================================================
+   HISTORIAL DE COMPRAS
+   ========================================================= */
+
+.container table {
+  width: 100%;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  overflow: hidden;
+
+  box-shadow: var(--sombra);
+
+  font-size: 13px;
+}
+
+.container table thead {
+  background: var(--gris-claro);
+}
+
+.container table th {
+  padding: 13px 14px;
+
+  color: var(--negro);
+
+  border-bottom: 1px solid var(--borde);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-align: left;
+}
+
+.container table td {
+  padding: 13px 14px;
+
+  color: var(--texto);
+
+  border-bottom: 1px solid #edf0ee;
+
+  vertical-align: middle;
+}
+
+.container table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.container table tbody tr:hover {
+  background: #fafcfb;
+}
+
+
+/* =========================================================
+   BOTÓN "VER" DEL HISTORIAL
+   ========================================================= */
+
+.container table td button {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--verde-oscuro);
+
+  border: 1px solid var(--verde-borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.container table td button:hover {
+  background: var(--verde-suave);
+}
+
+
+/* =========================================================
+   MENSAJES DE ESTADO
+   ========================================================= */
+
+.container > p {
+  color: var(--gris);
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.48);
+
+  z-index: 1000;
+
+  box-sizing: border-box;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 24px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.18);
+
+  box-sizing: border-box;
+}
+
+.modal-content h2 {
+  margin: 0 0 20px;
+
+  color: var(--negro);
+
+  font-size: 21px;
+}
+
+
+/* =========================================================
+   INPUTS DEL MODAL
+   ========================================================= */
+
+.modal-content input {
+  width: 100%;
+
+  height: 42px;
+
+  margin-bottom: 10px;
+
+  padding: 0 12px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modal-content input::placeholder {
+  color: #98a2b3;
+}
+
+.modal-content input:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   ACCIONES DEL MODAL
+   ========================================================= */
+
+.acciones {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.acciones button {
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.acciones button:hover {
+  background: var(--verde-oscuro);
+  border-color: var(--verde-oscuro);
+}
+
+.acciones button:last-child {
+  background: var(--blanco);
+  color: var(--negro);
+
+  border-color: var(--borde);
+}
+
+.acciones button:last-child:hover {
+  background: var(--gris-claro);
+}
+
+
+/* =========================================================
+   DETALLE DE COMPRA / BOLETA
+   ========================================================= */
+
+.boleta {
+  width: 100%;
+  max-width: 680px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 24px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.18);
+
+  box-sizing: border-box;
+}
+
+.boleta h2 {
+  margin: 0 0 20px;
+
+  color: var(--negro);
+
+  font-size: 21px;
+}
+
+.boleta p {
+  margin: 8px 0;
+
+  color: var(--texto);
+
+  font-size: 13px;
+}
+
+.boleta p b {
+  color: var(--negro);
+}
+
+.boleta hr {
+  margin: 18px 0;
+
+  border: none;
+
+  border-top: 1px solid var(--borde);
+}
+
+
+/* =========================================================
+   ITEMS DE LA BOLETA
+   ========================================================= */
+
+.boleta-item {
+  display: grid;
+
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+
+  gap: 12px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #edf0ee;
+
+  color: var(--texto);
+
+  font-size: 12px;
+}
+
+.boleta-item strong {
+  color: var(--negro);
+
+  font-size: 13px;
+}
+
+.boleta h3 {
+  margin: 0;
+
+  color: var(--verde);
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   ACCIONES BOLETA
+   ========================================================= */
+
+.acciones-boleta {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 20px;
+}
+
+.btn-cerrar {
+  min-height: 40px;
+
+  padding: 0 18px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-cerrar:hover {
+  background: var(--gris-claro);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .container {
+    padding: 22px 20px;
+  }
+
+  .fila-producto,
+  .header-lista {
+    grid-template-columns: 1fr 100px 30px 70px;
+  }
+
+  .boleta-item {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+
 @media (max-width: 768px) {
-  .item-controles-compra {
+
+  .container {
+    padding: 20px 16px;
+  }
+
+  .container h1 {
+    font-size: 23px;
+  }
+
+
+  /* Pestañas */
+
+  .compras-tabs button {
+    padding: 11px 8px;
+
+    font-size: 13px;
+  }
+
+
+  /* Buscador */
+
+  .input-buscador {
+    max-width: none;
+  }
+
+
+  /* Encabezado de productos */
+
+  .header-lista {
+    display: none;
+  }
+
+
+  /* Productos */
+
+  .fila-producto {
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+
+    grid-template-rows: auto auto;
+
+    gap: 8px 14px;
+
+    padding: 14px 15px;
+  }
+
+  .fila-producto .info {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .fila-producto .stock {
+    grid-column: 2;
+    grid-row: 1;
+
+    text-align: right;
+  }
+
+  .fila-producto .acciones-lista {
+    grid-column: 2;
+    grid-row: 2;
+
+    justify-content: flex-end;
+  }
+
+
+  /* Botón flotante */
+
+  .btn-flotante {
+    right: 16px;
+    bottom: 16px;
+
+    min-height: 44px;
+
+    padding: 0 16px;
+  }
+
+
+  /* Carrito */
+
+  .carrito-header {
+    align-items: flex-start;
+
     flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .carrito-header h1 {
+    font-size: 22px;
+  }
+
+
+  /* Items del carrito */
+
+  .item-carrito {
     align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    padding: 15px;
+  }
+
+  .item-controles-compra {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    align-items: end;
+
+    gap: 10px;
+  }
+
+  .campo-compra {
+    width: 100%;
   }
 
   .campo-compra input {
     width: 100%;
+  }
+
+  .subtotal-compra {
+    min-width: 0;
+
+    min-height: 38px;
+
+    grid-column: 1;
+  }
+
+  .btn-eliminar {
+    grid-column: 2;
+
+    justify-self: end;
+  }
+
+
+  /* Proveedor */
+
+  .cliente-box {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .btn-secundario-clientes {
+    width: 100%;
+  }
+
+
+  /* Total */
+
+  .total-box {
+    min-height: 54px;
+
+    padding: 0 15px;
+  }
+
+  .total-monto {
+    font-size: 16px;
+  }
+
+
+  /* Tabla */
+
+  .container table {
+    display: block;
+
+    overflow-x: auto;
+
+    white-space: nowrap;
+  }
+
+
+  /* Modal */
+
+  .modal {
+    align-items: flex-start;
+
+    padding: 30px 10px 10px;
+  }
+
+  .modal-content,
+  .boleta {
+    max-height: calc(100vh - 40px);
+
+    padding: 18px;
+
+    border-radius: 8px;
+  }
+
+  .modal-content h2,
+  .boleta h2 {
+    font-size: 19px;
+  }
+
+
+  /* Boleta */
+
+  .boleta-item {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    padding: 12px 0;
+  }
+
+  .acciones-boleta {
+    justify-content: stretch;
+  }
+
+  .btn-cerrar {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .container {
+    padding: 16px 12px;
+  }
+
+  .container h1 {
+    font-size: 21px;
+  }
+
+
+  .compras-tabs button {
+    font-size: 12px;
+  }
+
+
+  .fila-producto {
+    padding: 13px;
+  }
+
+
+  .item-controles-compra {
+    grid-template-columns: 1fr 1fr;
+  }
+
+
+  .total-box {
+    font-size: 14px;
+  }
+
+
+  .total-monto {
+    font-size: 15px;
+  }
+
+
+  .card-seccion {
+    padding: 16px;
+  }
+
+
+  .modal-content,
+  .boleta {
+    padding: 15px;
   }
 }

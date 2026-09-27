@@ -125,9 +125,6 @@ export default function Perfil() {
 
       <div className="card-perfil">
         <h2>Cambiar mi username</h2>
-        <p style={{ fontSize: 13, color: "#666", marginTop: -8 }}>
-          Es lo que usás para iniciar sesión, en vez del correo.
-        </p>
         <input
           placeholder="Nuevo username"
           value={nuevoUsername}

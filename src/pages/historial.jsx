@@ -139,6 +139,7 @@ export default function Historial() {
           <body>
             <h2>Guía de venta</h2>
 
+            <p>Folio: ${escaparHtml(detalle.venta.id)}</p>
             <p>Cliente: ${escaparHtml(detalle.venta.cliente)}</p>
             <p>Rut: ${escaparHtml(formatoRUT(detalle.venta.rut))}</p>
             <p>Ciudad: ${escaparHtml(detalle.venta.ciudad || "")}</p>
@@ -211,7 +212,7 @@ export default function Historial() {
 
       <input
         type="text"
-        placeholder="🔍 Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
+        placeholder="Buscar por nombre, RUT o fecha (dd-mm-aaaa)..."
         className="input-buscador"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
@@ -252,6 +253,7 @@ export default function Historial() {
 
               <h2>Guía de venta</h2>
 
+              <p><b>Folio:</b> {detalle.venta.id}</p>
               <p><b>Cliente:</b> {detalle.venta.cliente}</p>
               <p><b>Rut:</b> {formatoRUT(detalle.venta.rut)}</p>
               <p><b>Ciudad:</b> {detalle.venta.ciudad}</p>

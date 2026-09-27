@@ -1,155 +1,626 @@
-.deudores-total-general {
-  font-size: 15px;
-  margin-bottom: 14px;
+/* =========================================================
+   DEUDORES
+   Estilo corporativo
+   Verde / Negro / Blanco
+   ========================================================= */
+
+:root {
+  --verde: #176b3a;
+  --verde-oscuro: #0f4d2b;
+  --verde-suave: #eaf4ee;
+  --verde-borde: #b9d8c4;
+
+  --negro: #1f2933;
+  --texto: #344054;
+  --gris: #667085;
+  --gris-claro: #f5f7f6;
+  --borde: #d9e0dc;
+
+  --blanco: #ffffff;
+
+  --rojo: #c0392b;
+  --rojo-suave: #fcebea;
+  --rojo-borde: #e3b5b0;
+
+  --radio: 8px;
+  --radio-pequeno: 6px;
+
+  --sombra: 0 1px 3px rgba(16, 24, 40, 0.08);
+  --sombra-hover: 0 3px 8px rgba(16, 24, 40, 0.08);
 }
+
+
+/* =========================================================
+   CONTENEDOR GENERAL
+   ========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+  padding: 28px 32px;
+
+  box-sizing: border-box;
+}
+
+.container h1 {
+  margin: 0 0 24px;
+
+  color: var(--negro);
+
+  font-size: 26px;
+  font-weight: 700;
+
+  letter-spacing: -0.3px;
+}
+
+
+/* =========================================================
+   RESUMEN GENERAL
+   ========================================================= */
+
+.deudores-total-general {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 54px;
+
+  margin: 0 0 18px;
+  padding: 0 18px;
+
+  background: var(--verde);
+  color: #ffffff !important;
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio);
+
+  box-sizing: border-box;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: none;
+}
+
+.deudores-total-general b {
+  color: #ffffff !important;
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   LISTA DE DEUDORES
+   ========================================================= */
 
 .lista-deudores {
   display: flex;
+
   flex-direction: column;
-  gap: 14px;
+
+  gap: 12px;
 }
 
+
+/* =========================================================
+   TARJETA DEL DEUDOR
+   ========================================================= */
+
 .tarjeta-deudor {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 18px;
+
+  background: var(--blanco);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+
+  box-shadow: var(--sombra);
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.tarjeta-deudor:hover {
+  border-color: #bfd2c5;
+  box-shadow: var(--sombra-hover);
+}
+
+
+/* =========================================================
+   CABECERA DEL DEUDOR
+   ========================================================= */
 
 .tarjeta-deudor-header {
   display: flex;
+
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+
+  gap: 8px 12px;
+
+  margin-bottom: 14px;
+  padding-bottom: 13px;
+
+  border-bottom: 1px solid var(--borde);
 }
 
 .tarjeta-deudor-header .nombre {
-  font-weight: bold;
+  color: var(--negro);
+
   font-size: 16px;
+  font-weight: 700;
 }
 
 .tarjeta-deudor-header .direccion {
-  color: #666;
+  color: var(--gris);
+
   font-size: 13px;
 }
 
 .tarjeta-deudor-header .telefono {
-  color: #666;
+  color: var(--gris);
+
   font-size: 13px;
 }
+
+
+/* =========================================================
+   DEUDA TOTAL DEL CLIENTE
+   ========================================================= */
 
 .tarjeta-deudor-header .deuda-total {
   margin-left: auto;
-  font-weight: bold;
-  color: #c0392b;
+
+  color: var(--rojo);
+
   font-size: 16px;
+  font-weight: 800;
+
+  white-space: nowrap;
 }
+
+
+/* =========================================================
+   DETALLE DE DEUDAS
+   ========================================================= */
 
 .deudas-detalle {
   display: flex;
+
   flex-direction: column;
-  gap: 10px;
+
+  gap: 8px;
 }
+
+
+/* =========================================================
+   FILA DE DEUDA
+   ========================================================= */
 
 .fila-deuda {
-  background: #f9f9f9;
-  border-radius: 10px;
-  padding: 12px;
+  padding: 14px;
+
+  background: var(--gris-claro);
+
+  border: 1px solid #e7ebe9;
+  border-radius: var(--radio-pequeno);
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-.fila-deuda.vencida {
-  background: #fdecea;
+.fila-deuda:hover {
+  border-color: #d2ddd6;
 }
+
+
+/* =========================================================
+   DEUDA VENCIDA
+   ========================================================= */
+
+.fila-deuda.vencida {
+  background: var(--rojo-suave);
+
+  border-color: var(--rojo-borde);
+}
+
+
+/* =========================================================
+   INFORMACIÓN DE LA DEUDA
+   ========================================================= */
 
 .fila-deuda-info {
   display: flex;
+
   flex-direction: column;
-  gap: 3px;
-  margin-bottom: 10px;
+
+  gap: 4px;
+
+  margin-bottom: 12px;
+
+  color: var(--texto);
+
   font-size: 13px;
 }
 
-.fila-deuda-info .saldo {
-  font-weight: bold;
-  color: #2e7d32;
-  font-size: 14px;
+.fila-deuda-info > span:first-child {
+  color: var(--texto);
+
+  line-height: 1.4;
 }
+
+.fila-deuda-info > span:first-child b {
+  color: var(--negro);
+}
+
+
+/* =========================================================
+   SALDO
+   ========================================================= */
+
+.fila-deuda-info .saldo {
+  color: var(--verde);
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   INFORMACIÓN SECUNDARIA
+   ========================================================= */
 
 .fila-deuda-info .meta {
-  color: #666;
+  color: var(--gris);
+
+  font-size: 12px;
 }
 
+
+/* =========================================================
+   BADGE VENCIDO
+   ========================================================= */
+
 .badge-vencido {
-  color: #c0392b;
-  font-weight: bold;
+  display: inline-block;
+
+  margin-left: 4px;
+
+  color: var(--rojo);
+
+  font-size: 12px;
+  font-weight: 800;
 }
+
+
+/* =========================================================
+   CONTROLES DE PAGO
+   ========================================================= */
 
 .fila-deuda-controles {
   display: flex;
+
   flex-wrap: wrap;
-  gap: 8px;
+
   align-items: center;
+
+  gap: 8px;
 }
+
+
+/* =========================================================
+   INPUT MONTO
+   ========================================================= */
 
 .fila-deuda-controles input[type="number"] {
-  width: 100px;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  width: 110px;
+  height: 38px;
+
+  padding: 0 10px;
+
+  background: var(--blanco);
+  color: var(--negro);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
   font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.btn-secundario {
-  padding: 8px 12px;
-  background: #ccc;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.fila-deuda-controles input[type="number"]::placeholder {
+  color: #98a2b3;
+}
+
+.fila-deuda-controles input[type="number"]:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   SELECTS
+   ========================================================= */
+
+.fila-deuda-controles select {
+  min-width: 170px;
+  height: 38px;
+
+  padding: 0 10px;
+
+  background: var(--blanco);
+  color: var(--texto);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
   font-size: 13px;
+
+  outline: none;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.fila-deuda-controles select:focus {
+  border-color: var(--verde);
+
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 58, 0.10);
+}
+
+
+/* =========================================================
+   BOTÓN "TODO"
+   ========================================================= */
+
+.btn-secundario {
+  min-height: 38px;
+
+  padding: 0 13px;
+
+  background: var(--blanco);
+  color: var(--texto);
+
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-secundario:hover {
-  background: #b5b5b5;
+  background: var(--verde-suave);
+
+  border-color: var(--verde-borde);
+
+  color: var(--verde-oscuro);
 }
 
+
+/* =========================================================
+   BOTÓN REGISTRAR PAGO
+   ========================================================= */
+
 .fila-deuda-controles .btn-guardar-fila {
+  min-height: 38px;
+
   margin-left: auto;
-  padding: 8px 16px;
-  background: #2e7d32;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
+
+  padding: 0 17px;
+
+  background: var(--verde);
+  color: var(--blanco);
+
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-pequeno);
+
+  font-size: 13px;
+  font-weight: 700;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .fila-deuda-controles .btn-guardar-fila:hover:not(:disabled) {
-  background: #1b5e20;
+  background: var(--verde-oscuro);
+
+  border-color: var(--verde-oscuro);
 }
 
 .fila-deuda-controles .btn-guardar-fila:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
+
   cursor: default;
 }
 
+.container > p:not(.deudores-total-general) {
+  color: var(--gris);
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .container {
+    padding: 22px 20px;
+  }
+
+  .fila-deuda-controles select {
+    min-width: 150px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+
 @media (max-width: 768px) {
+
+  .container {
+    padding: 20px 16px;
+  }
+
+  .container h1 {
+    font-size: 23px;
+  }
+
+
+  /* Resumen */
+
+  .deudores-total-general {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    min-height: 60px;
+
+    padding: 10px 15px;
+  }
+
+
+  /* Cabecera deudor */
+
+  .tarjeta-deudor {
+    padding: 15px;
+  }
+
+  .tarjeta-deudor-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
   .tarjeta-deudor-header .deuda-total {
     margin-left: 0;
+
+    margin-top: 3px;
+
+    font-size: 16px;
   }
+
+
+  /* Deuda */
+
+  .fila-deuda {
+    padding: 13px;
+  }
+
+
+  /* Controles */
 
   .fila-deuda-controles {
     flex-direction: column;
+
     align-items: stretch;
   }
 
-  .fila-deuda-controles input[type="number"] {
+  .fila-deuda-controles input[type="number"],
+  .fila-deuda-controles select {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .fila-deuda-controles .btn-secundario {
     width: 100%;
   }
 
   .fila-deuda-controles .btn-guardar-fila {
+    width: 100%;
+
     margin-left: 0;
+  }
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .container {
+    padding: 16px 12px;
+  }
+
+  .container h1 {
+    font-size: 21px;
+  }
+
+  .deudores-total-general {
+    font-size: 13px;
+  }
+
+  .deudores-total-general b {
+    font-size: 15px;
+  }
+
+  .tarjeta-deudor {
+    padding: 13px;
+  }
+
+  .tarjeta-deudor-header .nombre {
+    font-size: 15px;
+  }
+
+  .fila-deuda-info {
+    font-size: 12px;
+  }
+
+  .fila-deuda-info .saldo {
+    font-size: 14px;
+  }
+
+  .fila-deuda-controles input[type="number"],
+  .fila-deuda-controles select,
+  .btn-secundario,
+  .fila-deuda-controles .btn-guardar-fila {
+    min-height: 40px;
   }
 }

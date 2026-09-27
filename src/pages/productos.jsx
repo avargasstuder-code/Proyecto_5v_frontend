@@ -159,7 +159,7 @@ export default function Productos() {
   };
 
   return (
-    <div className="container">
+    <div className="container productos-page">
       <h1>Productos</h1>
 
       <div className="top-bar">
@@ -190,7 +190,7 @@ export default function Productos() {
         <div className="buscador-container">
           <input
             type="text"
-            placeholder="🔍 Buscar producto..."
+            placeholder="Buscar producto..."
             className="input-buscador"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
