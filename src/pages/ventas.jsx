@@ -542,6 +542,7 @@ function Ventas({ setIsAuth }) {
               <span className="codigo">{p.categoria || "Sin categoría"}</span>
             </div>
             <div className="stock">
+              <span className="stock-label">Stock</span>
               <span className="stock-valor">{p.stock}</span>
             </div>
             <div className="precios">
